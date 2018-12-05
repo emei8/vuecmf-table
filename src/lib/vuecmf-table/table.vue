@@ -2,7 +2,7 @@
     <div>
         <el-row :gutter="10" >
             <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8"  class="btn-group">
-                <el-button-group>
+                <el-button-group v-if="headerAction">
                     <el-button v-for="(item,k) in headerAction" size="small" :type="item.type" @click="fun(item.event)"  :title="item.title"><i :class="item.icon"></i></el-button>
                 </el-button-group>
             </el-col>
@@ -138,6 +138,7 @@
             </template>
 
             <el-table-column
+                    v-if="rowAction"
                     fixed="right"
                     label="操作"
                     :width="operateWidth"
