@@ -1,7 +1,7 @@
 {
   "name": "vuecmf-table",
   "description": "基于vue2和element-ui的列表组件，内置搜索、筛选、分页、导出EXCEL等功能",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "emei8 <386196596@qq.com>>",
   "license": "MIT",
   "scripts": {

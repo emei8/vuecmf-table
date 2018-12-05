@@ -3,10 +3,6 @@
         <el-row :gutter="10" >
             <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8"  class="btn-group">
                 <el-button-group>
-                    <!--<el-button size="small" type="primary" @click="add" title="添加"><i class="fa fa-plus-circle"></i></el-button>
-                    <el-button size="small" type="info"  title="禁用"><i class="fa fa-eye-slash"></i></el-button>
-                    <el-button size="small" type="danger"  title="删除"><i class="fa fa-trash-o"></i></el-button>-->
-
                     <el-button v-for="(item,k) in headerAction" size="small" :type="item.type" @click="fun(item.event)"  :title="item.title"><i :class="item.icon"></i></el-button>
                 </el-button-group>
             </el-col>
@@ -118,8 +114,12 @@
                 @sort-change="sort"
                 v-loading="loading"
                 :stripe="true"
+                :height="height"
+                @select="currentSelect"
+                @selection-change="getSelectRows"
         >
             <el-table-column
+                    fixed
                     type="selection"
                     width="50">
             </el-table-column>
@@ -131,6 +131,22 @@
                         >
                 </el-table-column>
             </template>
+
+            <el-table-column
+                    fixed="right"
+                    label="操作"
+                    :width="operateWidth"
+                    >
+                <template slot-scope="scope" >
+                    <el-button v-for="(item,k) in rowAction"
+                               size="mini"
+                               :type="item.type"
+                               @click.native.prevent="rowFun(item.event,scope.$index, scope.row)" ><i :class="item.icon"></i> {{item.title}}</el-button>
+
+
+
+                </template>
+            </el-table-column>
 
 
         </el-table>
@@ -180,7 +196,7 @@
 
     export default {
         name:'vc-table',
-        props:['headerAction','server','page','limit'],//头部按钮
+        props:['headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
         data() {
             return {
                 //筛选表单
@@ -211,7 +227,9 @@
                 total: 0,
                 orderField : '',
                 orderSort: 'desc',
-                columns : []
+                columns : [],
+                selectRows : [], //已选择行数据
+                currentSelectRow : {} //当前选择行数据
             }
         },
         mounted(){
@@ -231,9 +249,20 @@
             }
         },*/
         methods: {
+            currentSelect:function (selection, row) {
+                this.currentSelectRow = row
+            },
+            getSelectRows:function (selection) {
+                this.selectRows = selection
+
+            },
             fun: function (callfun) {
                 //调用外部函数
-                callfun()
+                callfun(this.selectRows)
+            },
+            rowFun: function (callfun,index,row) {
+                //调用外部函数
+                callfun(index,row)
             },
             //添加表单
             add: function () {

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :header-action="headerAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"></vc-table>
+    <vc-table :header-action="headerAction" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :operate-width="150"></vc-table>
 
   </div>
 </template>
@@ -14,16 +14,39 @@ export default {
     return {
         headerAction:[
             {
-                event: this.fun,
+                event: function (selectRows) {
+                    console.log(selectRows)
+                },
                 title: '测试',
                 type: 'success',
                 icon: 'fa fa-plus-circle'
             },
             {
-                event: this.fun2,
+                event: function (selectRows) {
+                    console.log(selectRows)
+                    alert('测试2')
+                },
                 title: '测试2',
                 type: 'primary',
                 icon: 'fa fa-edit'
+            }
+        ],
+        rowAction:[
+            {
+                event: function (index,row) {
+                    console.log(index,row)
+                },
+                title: '编辑',
+                type: 'success',
+                icon: ''
+            },
+            {
+                event: function (index,row) {
+                    console.log(index,row)
+                },
+                title: '删除',
+                type: 'primary',
+                icon: ''
             }
         ]
     }
