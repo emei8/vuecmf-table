@@ -168,13 +168,15 @@
 
 <script>
     import Vue from 'vue'
-    import ElementUI from 'element-ui'
-    import 'element-ui/lib/theme-chalk/index.css'
     import 'font-awesome/css/font-awesome.min.css'
     import axios from 'axios'
     import jsonExport from './jsonExport'
-
+    /*
+    如果elementUI页面使用CDN外链接引入的话，则注释这段
+    import ElementUI from 'element-ui'
+    import 'element-ui/lib/theme-chalk/index.css'
     Vue.use(ElementUI)
+    */
 
     export default {
         name:'vc-table',

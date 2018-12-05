@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <h2>vue-super-table demo</h2>
-    <vc-table :headerAction="headerAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"></vc-table>
+    <h2>vuecmf-table demo</h2>
+    <vc-table :header-action="headerAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"></vc-table>
 
   </div>
 </template>
