@@ -129,6 +129,11 @@
                         :label="item.label"
                         :sortable="item.sortable"
                         >
+
+                    <template slot-scope="scope">
+                        <span v-html="formatter(scope.row,scope.row[item.prop])"></span>
+                    </template>
+
                 </el-table-column>
             </template>
 
@@ -249,6 +254,18 @@
             }
         },*/
         methods: {
+            formatter:function (scope, cellValue) {
+                let start = cellValue.lastIndexOf('.')
+                let end = cellValue.length
+                let ext = (cellValue.substring(start,end)).toLowerCase()
+
+                if(start > 0 && (ext == '.gif' || ext == '.png' || ext == '.jpg' || ext == '.bmp' || ext == '.jpeg' )){
+                    cellValue = '<img src="' + cellValue + '" style="width:100%" />'
+                }else if(cellValue.indexOf('http') > -1 && cellValue.indexOf('http') == 0){
+                    cellValue = '<a href="' + cellValue + '" target="_blank">' + cellValue + '</a>'
+                }
+                return cellValue
+            },
             currentSelect:function (selection, row) {
                 this.currentSelectRow = row
             },
