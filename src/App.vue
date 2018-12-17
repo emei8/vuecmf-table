@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :header-action="headerAction" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :operate-width="200"></vc-table>
+    <vc-table :header-action="headerAction" :cell-action="cellAction" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :operate-width="200"></vc-table>
 
   </div>
 </template>
@@ -31,6 +31,9 @@ export default {
                 icon: 'fa fa-edit'
             }
         ],
+        cellAction: function () {
+            alert('sss');
+        },
         rowAction:[
             {
                 event: function (index,row) {
@@ -38,7 +41,8 @@ export default {
                 },
                 title: '编辑',
                 type: 'success',
-                icon: ''
+                icon: '',
+                hideValue: ''
             },
             {
                 event: function (index,row) {
@@ -46,7 +50,8 @@ export default {
                 },
                 title: '删除',
                 type: 'primary',
-                icon: ''
+                icon: '',
+                hideValue: ''
             }
         ]
     }

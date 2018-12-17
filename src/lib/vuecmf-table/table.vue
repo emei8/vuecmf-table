@@ -16,6 +16,7 @@
                             clearable>
                     </el-input>
 
+                    <el-button type="default" size="small" title="刷新" @click="refreshList"><i class="fa fa-refresh"></i></el-button>
                     <el-popover
                             placement="bottom"
                             v-model="filter_show"
@@ -26,8 +27,8 @@
                                 <template v-for="(item,index) in columns" >
                                     <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
                                         <el-form-item :label="item.label"  :prop="item.prop">
-                                            <el-input v-model="filterForm[item.prop]" :placeholder="'请输入' + item.label" v-if=" item.data_type == 'varchar' "></el-input>
-                                            <el-select v-model="filterForm[item.prop]"   placeholder="请选择" v-if=" item.data_type == 'select' ">
+                                            <el-input v-model="filterForm[item.prop]" :placeholder="'请输入' + item.label" v-if=" item.data_type == 'string' "></el-input>
+                                            <el-select  v-model="filterForm[item.prop]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                                                 <el-option
                                                         v-for="(option_item,option_index) in item.options"
                                                         :key="option_index"
@@ -68,8 +69,6 @@
                         <el-button type="default" size="small" title="筛选" slot="reference"><i class="fa fa-filter"></i></el-button>
                     </el-popover>
 
-
-                    <el-button type="default" size="small" title="刷新" @click="refresh"><i class="fa fa-refresh"></i></el-button>
                     <!--<el-button type="default" size="small" title="日历"><i class="fa fa-calendar"></i></el-button>
                     <el-button type="default" size="small" title="透视" @click="pivot"><i class="fa fa-table"></i></el-button>
                     <el-button type="default" size="small" title="图表"><i class="fa fa-bar-chart"></i></el-button>
@@ -82,7 +81,9 @@
                         <el-dropdown-menu slot="dropdown" >
                             <el-checkbox-group v-model="checkList" class="dropdown-content" @change="fieldChange">
                                 <template v-for="(item,index) in columns">
-                                    <el-checkbox  :label="item.label" ></el-checkbox><br>
+                                    <el-checkbox  :label="item.label" >
+                                        <span v-html="item.label"></span>
+                                    </el-checkbox><br>
                                 </template>
                             </el-checkbox-group>
                         </el-dropdown-menu>
@@ -95,7 +96,6 @@
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="csv">CSV</el-dropdown-item>
                             <el-dropdown-item command="xlsx">MS-Excel</el-dropdown-item>
-                            <el-dropdown-item command="txt">TXT</el-dropdown-item>
                             <el-dropdown-item command="xml">XML</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
@@ -118,7 +118,7 @@
                 @select="currentSelect"
                 @selection-change="getSelectRows"
         >
-            <el-table-column
+            <el-table-column v-if="checkbox"
                     fixed
                     type="selection"
                     width="50">
@@ -128,10 +128,28 @@
                         :prop="item.prop"
                         :label="item.label"
                         :sortable="item.sortable"
+                        :fixed= "item.fixed"
+                        :width="item.width"
                         >
 
+                    <template slot="header" slot-scope="scope">
+                        <el-tooltip v-if="item.tooltip" placement="bottom" effect="light">
+                            <i class="el-icon-question"></i>
+                            <div slot="content" >
+                                <span v-html="item.tooltip"></span>
+                            </div>
+                        </el-tooltip>
+                        <span v-html="item.label" style="font-size: 14px;">
+                        </span>
+                        <!--<div><el-input
+                                v-model="filterForm[item.prop]"
+                                size="mini"
+                                placeholder="输入关键字搜索"/>
+                        </div>-->
+                    </template>
+
                     <template slot-scope="scope">
-                        <span v-html="formatter(scope.row,scope.row[item.prop])"></span>
+                        <span  v-html="formatter(scope.row,item.prop,item.data_type,item.options)"></span>
                     </template>
 
                 </el-table-column>
@@ -144,12 +162,17 @@
                     :width="operateWidth"
                     >
                 <template slot-scope="scope" >
-                    <el-button v-for="(item,k) in rowAction"
-                               size="mini"
-                               :type="item.type"
-                               @click.native.prevent="rowFun(item.event,scope.$index, scope.row)" ><i :class="item.icon"></i> {{item.title}}</el-button>
-
-
+                    <span v-for="(item,k) in rowAction">
+                        <template v-if=" item['hideValue'] == scope['row'][item['hideField']] ">
+                            --
+                        </template>
+                        <template v-else>
+                            <el-button style="margin-right: 5px"
+                                    size="mini"
+                                    :type="item.type"
+                                    @click.native.prevent="rowFun(item.event,scope.$index, scope.row)" ><i :class="item.icon"></i> {{item.title}}</el-button>
+                        </template>
+                    </span>
 
                 </template>
             </el-table-column>
@@ -190,7 +213,7 @@
 
 <script>
     import Vue from 'vue'
-    import 'font-awesome/css/font-awesome.min.css'
+   // import 'font-awesome/css/font-awesome.min.css'
     import axios from 'axios'
     import jsonExport from './jsonExport'
     /*
@@ -202,7 +225,7 @@
 
     export default {
         name:'vc-table',
-        props:['headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
+        props:['cellEvent','checkbox','headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
         data() {
             return {
                 //筛选表单
@@ -241,11 +264,13 @@
         mounted(){
             this.pageSize = this.limit
             this.loadTableField()
-            this.refresh()
-            this.resize()
+            this.refreshList()
+            this.resizeWin()
             window.onresize = () => {
-                this.resize()
+                this.resizeWin()
             }
+
+
 
         },
        /* watch:{
@@ -254,17 +279,26 @@
                 console.log(newFilterForm)
             }
         },*/
-        methods: {
-            formatter:function (scope, cellValue) {
-                let start = cellValue.lastIndexOf('.')
-                let end = cellValue.length
-                let ext = (cellValue.substring(start,end)).toLowerCase()
+        updated() {
 
-                if(start > 0 && (ext == '.gif' || ext == '.png' || ext == '.jpg' || ext == '.bmp' || ext == '.jpeg' )){
-                    cellValue = '<img src="' + cellValue + '" style="width:100%" />'
-                }else if(cellValue.indexOf('http') > -1 && cellValue.indexOf('http') == 0){
+        },
+        methods: {
+
+            formatter:function (row, field_name, data_type, options) {
+                let cellValue = row[field_name]
+
+                if((data_type == 'switch' || data_type == 'select') && options != '' && options != undefined){
+                    cellValue = options[cellValue]
+                }else if(data_type == 'image'){
+                    cellValue = '<img src="' + cellValue + '" style="width:60px" />'
+                }else if(data_type == 'url'){
                     cellValue = '<a href="' + cellValue + '" target="_blank">' + cellValue + '</a>'
                 }
+
+                if(row[field_name + '-html'] != undefined){
+                    cellValue = row[field_name + '-html']
+                }
+
                 return cellValue
             },
             currentSelect:function (selection, row) {
@@ -279,6 +313,10 @@
                 callfun(this.selectRows)
             },
             rowFun: function (callfun,index,row) {
+                //调用外部函数
+                callfun(index,row)
+            },
+            cellFun: function (callfun,index,row) {
                 //调用外部函数
                 callfun(index,row)
             },
@@ -325,19 +363,24 @@
             //筛选
             filter: function () {
                 this.filter_show = false
-                this.refresh()
+                this.refreshList()
             },
             //加载表格字段回调
             updateTableField: function (data) {
                 let that = this
                 this.columns = data.data.fields
                 this.columns.forEach(function (val,key) {
-                    if(val['data_type'] == 'varchar'){
-                        that.keywords_field.push(val['prop'])
+                    let filterName = val['prop']
+                    if(val['filterName'] != '' &&  val['filterName'] != undefined){
+                        filterName = val['filterName']
+                    }
+
+                    if(val['data_type'] == 'string'){
+                        that.keywords_field.push(filterName)
                     }
                     if(val['filter'] == true){
                         //由于搜索表单中v-model 是动态绑定，这里必须使用 Vue.$set(obj, key, val) 方式设置 v-model要绑定的数据，动态绑定才生效
-                        that.$set(that.filterForm,val['prop'],'')
+                        that.$set(that.filterForm,filterName,'')
                         //that.filterForm[val['prop']] = ''  //这种生成的v-model的数据 动态绑定v-model是不生效的
                     }
                     if(val['show'] == true){
@@ -351,7 +394,7 @@
             },
             //搜索
             search: function () {
-                this.refresh()
+                this.refreshList()
             },
             //拉取要导出的数据的回调
             getExportData: function (data) {
@@ -367,7 +410,13 @@
                     that.columns.forEach(function (v,k) {
                         //只下载显示的列
                         if(v['show']){
-                            item[v['label']] = val[v['prop']]
+                            //过滤HTML标签
+                            let label = v['label'].replace(/<[^>]*>/g,'')
+                            let value = val[v['prop']]
+                            if(v['options'] != undefined && v['options'] != ''){
+                                value = v['options'][value]
+                            }
+                            item[label] = value
                         }
                     });
                     that.exportData.push(item)
@@ -401,12 +450,13 @@
                 this.pullData(this.downloadCurrentPage,this.getExportData)
             },
             //刷新
-            refresh: function () {
+            refreshList: function () {
                 this.loading = true
                 this.pullData(this.currentPage,this.getList)
             },
             //改变窗口大小
-            resize: function () {
+            resizeWin: function () {
+                //如果页数不够page-count，sizes 将不会显示
                 if(document.body.offsetWidth < 768){
                     this.pageLayout = 'prev, pager, next'
                 }else{
@@ -433,7 +483,7 @@
             sort(column){
                 this.orderField = column.prop
                 this.orderSort = column.order == 'descending' ? 'desc' : 'asc'
-                this.refresh()
+                this.refreshList()
             },
             //拉取列表数据的回调
             getList(data){
@@ -448,16 +498,26 @@
                 this.total = data.data.total
                 this.totalPages = Math.ceil(this.total / this.pageSize)
                 this.loading = false
+
+                //执行外部传入的事件
+                if(this.$props.cellEvent != undefined && this.$props.cellEvent != '' && this.$props.cellEvent != null){
+                    this.$props.cellEvent.forEach(function (value,index) {
+                        value()
+                    })
+                }
+
+
             },
             //每页显示条数修改
             handleSizeChange(val) {
                 this.pageSize = val
-                this.refresh()
+                this.refreshList()
             },
             //当前页修改
             handleCurrentChange(val) {
                 this.currentPage = val
-                this.refresh()
+                this.refreshList()
+
             }
         }
     }
