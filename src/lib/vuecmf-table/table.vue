@@ -3,7 +3,7 @@
         <el-row :gutter="10" >
             <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8"  class="btn-group">
                 <el-button-group v-if="headerAction">
-                    <el-button v-for="(item,k) in headerAction" size="small" :type="item.type" @click="fun(item.event)"  :title="item.title"><i :class="item.icon"></i></el-button>
+                    <el-button v-for="(item,k) in headerAction" size="small" :type="item.type" @click="fun(item.event)"  :title="item.title"><i :class="item.icon"></i> {{ item.label }}</el-button>
                 </el-button-group>
             </el-col>
             <el-col :xs="24" :sm="16" :md="16" :lg="16" :xl="16" class="table-tools">
@@ -121,6 +121,7 @@
             <el-table-column v-if="checkbox"
                     fixed
                     type="selection"
+                    :selectable="selectable"
                     width="50">
             </el-table-column>
             <template v-for="(item,index) in columns">
@@ -225,7 +226,7 @@
 
     export default {
         name:'vc-table',
-        props:['cellEvent','checkbox','headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
+        props:['selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
         data() {
             return {
                 //筛选表单
@@ -495,7 +496,7 @@
                     return false
                 }
                 this.tableData = data.data.data
-                this.total = data.data.total
+                this.total = parseInt(data.data.total)
                 this.totalPages = Math.ceil(this.total / this.pageSize)
                 this.loading = false
 
@@ -547,7 +548,7 @@
 
 <style>
     .table-tools .el-input__inner{ border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
-    .el-button--small{ font-size: 16px !important; padding: 7px 9px !important; }
+    .el-button--small{ font-size: 14px !important; padding: 7px 9px !important; }
     .el-table--small td, .el-table--small th{ padding: 5px 0 !important;}
     .el-form-item--small .el-form-item__content{
         width: 70% !important;
