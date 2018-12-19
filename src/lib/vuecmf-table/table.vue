@@ -164,8 +164,8 @@
                     >
                 <template slot-scope="scope" >
                     <span v-for="(item,k) in rowAction">
-                        <template v-if=" item['hideValue'] == scope['row'][item['hideField']] ">
-                            --
+                        <template v-if=" item.callback != undefined && item.callback(scope.$index, scope.row) != false ">
+                            <span v-html="item.callback(scope.$index, scope.row)"></span>
                         </template>
                         <template v-else>
                             <el-button style="margin-right: 5px"
@@ -284,7 +284,12 @@
 
         },
         methods: {
-
+            post: function (url,data) {
+                return axios.post(url, data)
+            },
+            get: function (url) {
+                return axios.get(url)
+            },
             formatter:function (row, field_name, data_type, options) {
                 let cellValue = row[field_name]
 
@@ -335,13 +340,13 @@
             pullData: function (currentPage,callback,action) {
                 let url = this.server
                 if(action != undefined && action == 'getField'){  //拉取表格字段信息
-                    axios.post(url,{
+                    this.post(url,{
                         action: action
                     }).then(function (data) {
                         callback(data)
                     })
                 }else{  //拉取列表数据
-                    axios.post(url + '?'+ this.page + '=' + currentPage,{
+                    this.post(url + '?'+ this.page + '=' + currentPage,{
                         pageSize: this.pageSize,
                         orderField: this.orderField,
                         orderSort: this.orderSort,
@@ -501,9 +506,10 @@
                 this.loading = false
 
                 //执行外部传入的事件
+                let that = this
                 if(this.$props.cellEvent != undefined && this.$props.cellEvent != '' && this.$props.cellEvent != null){
                     this.$props.cellEvent.forEach(function (value,index) {
-                        value()
+                        value(that.tableData)
                     })
                 }
 
@@ -548,7 +554,7 @@
 
 <style>
     .table-tools .el-input__inner{ border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
-    .el-button--small{ font-size: 14px !important; padding: 7px 9px !important; }
+    .el-button--small{ font-size: 14px !important; padding: 8px 9px !important; }
     .el-table--small td, .el-table--small th{ padding: 5px 0 !important;}
     .el-form-item--small .el-form-item__content{
         width: 70% !important;

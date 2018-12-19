@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :selectable="selectable" :checkbox="true"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :operate-width="200"></vc-table>
+    <vc-table :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :operate-width="200"></vc-table>
 
   </div>
 </template>
@@ -41,9 +41,12 @@ export default {
                 icon: 'fa fa-edit'
             }
         ],
-        cellEvent: function () {
-            alert('sss');
-        },
+        //针对自定义单元格内容的事件处理， 可借助jquery进行DOM操作和事件处理
+        cellEvent: [
+            function (currentList) { //currentList 为当前页列表数据
+                console.log(currentList)
+            }
+        ],
         rowAction:[
             {
                 event: function (index,row) {
@@ -52,7 +55,13 @@ export default {
                 title: '编辑',
                 type: 'success',
                 icon: '',
-                hideValue: ''
+                callback: function(index,row){  //自定义操作项内容
+                    if(row.status == 10){
+                        return false;  //返回false 则不替换操作按钮
+                    }else{
+                        return 'hello world'  //替换操作按钮内容
+                    }
+                }
             },
             {
                 event: function (index,row) {
@@ -60,11 +69,15 @@ export default {
                 },
                 title: '删除',
                 type: 'primary',
-                icon: '',
-                hideValue: ''
+                icon: ''
             }
         ]
     }
+  },
+  mounted: function () {
+      this.$refs.vcTable.post('http://www.b2b.com/api/table/index',{id:'11'}).then(function (data) {
+          console.log(data)
+      })
   }
 }
 </script>
