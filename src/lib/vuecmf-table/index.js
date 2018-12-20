@@ -1,4 +1,5 @@
 import vcTable from './table.vue'
+import 'babel-polyfill'
 
 const VueSuperTablePlugin = {
     install: function(Vue) {

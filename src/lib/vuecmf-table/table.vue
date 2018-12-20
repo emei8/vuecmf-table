@@ -164,8 +164,8 @@
                     >
                 <template slot-scope="scope" >
                     <span v-for="(item,k) in rowAction">
-                        <template v-if=" item.callback != undefined && item.callback(scope.$index, scope.row) != false ">
-                            <span v-html="item.callback(scope.$index, scope.row)"></span>
+                        <template v-if=" item.callback != undefined && (item.callback(scope.$index, scope.row) == false || item.callback(scope.$index, scope.row) == true) && scope.row.callback_result != false ">
+                            <span v-html="scope.row.callback_result"></span>
                         </template>
                         <template v-else>
                             <el-button style="margin-right: 5px"

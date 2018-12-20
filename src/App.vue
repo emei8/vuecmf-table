@@ -69,15 +69,40 @@ export default {
                 },
                 title: '删除',
                 type: 'primary',
-                icon: ''
+                icon: '',
+                callback: function(index,row){  //自定义操作项内容
+
+                }
             }
         ]
     }
   },
   mounted: function () {
-      this.$refs.vcTable.post('http://www.b2b.com/api/table/index',{id:'11'}).then(function (data) {
-          console.log(data)
-      })
+      let that = this
+      that.rowAction[1].callback = function (index,row) {
+
+          //that.$set(that.$refs.vcTable.tableData[index],'callback_result','未关注');  //替换默认操作
+
+          that.$set(that.$refs.vcTable.tableData[index],'callback_result',false);  //不替换默认操作
+
+         /*
+         //异常回调处理
+         that.$refs.vcTable.post('http://www.b2b.com/api/table/index',{id:'11'}).then(
+              resolve => {
+                  //console.log('请求成功',resolve.data)
+
+                  that.$set(that.$refs.vcTable.tableData[index],'callback_result','未关注');
+
+                  //return Promise.resolve(resolve.data)
+              },
+              reject => {
+                 // console.log('请求异常')
+                 // return Promise.reject(reject)
+              }
+          );*/
+
+      }
+
   }
 }
 </script>

@@ -1,7 +1,7 @@
 {
   "name": "vuecmf-table",
   "description": "基于vue2和element-ui的列表组件，内置搜索、筛选、分页、导出EXCEL等功能",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "emei8 <386196596@qq.com>>",
   "license": "MIT",
   "scripts": {
@@ -25,6 +25,7 @@
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-component": "^1.1.1",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-stage-3": "^6.24.1",
     "cross-env": "^5.0.5",

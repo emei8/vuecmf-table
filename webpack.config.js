@@ -61,7 +61,7 @@ module.exports = {
 
 if (process.env.NODE_ENV === 'production') {
     //发布插件使用
-    module.exports.entry = './src/lib/vuecmf-table/index.js'  //打包操作的入口文件
+    module.exports.entry = ['babel-polyfill','./src/lib/vuecmf-table/index.js']  //打包操作的入口文件
     module.exports.output = {
         path: path.resolve(__dirname, './dist'),
         publicPath: './',  //打包后的文件存放目录
@@ -103,7 +103,7 @@ if (process.env.NODE_ENV === 'production') {
 
 }else{
     //测试插件使用
-    module.exports.entry = './src/main.js'
+    module.exports.entry = ['babel-polyfill','./src/main.js']
     module.exports.output = {
         path: path.resolve(__dirname, './dist'),
         publicPath: '/dist/',
