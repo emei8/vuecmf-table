@@ -164,15 +164,16 @@
                     >
                 <template slot-scope="scope" >
                     <span v-for="(item,k) in rowAction">
-                        <template v-if=" item.callback != undefined && (item.callback(scope.$index, scope.row) == false || item.callback(scope.$index, scope.row) == true) && scope.row.callback_result != false ">
-                            <span v-html="scope.row.callback_result"></span>
+                        <template v-if=" item.callback == undefined || item.callback(scope.$index, scope.row) == false || scope.row.callback_result == false ">
+                            <el-button style="margin-right: 5px"
+                                       size="mini"
+                                       :type="item.type"
+                                       @click.native.prevent="rowFun(item.event,scope.$index, scope.row)" ><i :class="item.icon"></i> {{item.title}}</el-button>
                         </template>
                         <template v-else>
-                            <el-button style="margin-right: 5px"
-                                    size="mini"
-                                    :type="item.type"
-                                    @click.native.prevent="rowFun(item.event,scope.$index, scope.row)" ><i :class="item.icon"></i> {{item.title}}</el-button>
+                            <span v-html="scope.row.callback_result"></span>
                         </template>
+
                     </span>
 
                 </template>
