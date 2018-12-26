@@ -18,6 +18,44 @@ npm run build
 For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 ## 后端返回JSON 数据样例：
+### 字段数据样例
+后端接收前端POST数据中 action = getField
+返回JSON
+```
+{
+    "fields": [
+        {
+            "prop": "id",  //字段名称
+            "label": "",  //表头显示名称
+            "data_type": "int", //字段值类型
+            "sortable": true, //是否可排序
+            "show": false, //默认是否在表格中显示
+            "fixed": false, //是否固定列
+            "filter": false //是否可筛选
+        },
+        {
+            "prop": "inquiry_sheet_id",
+            "label": "inquiry_sheet的id",
+            "data_type": "hidden",
+            "sortable": true,
+            "show": false,
+            "fixed": false,
+            "filter": false
+        },
+        {
+            "prop": "sku",
+            "label": "sku",
+            "data_type": "string",
+            "sortable": true,
+            "show": true,
+            "fixed": false,
+            "filter": true
+        }
+
+ }
+```
+
+### 列表数据样例
 ```
 {
     "total": 53,
