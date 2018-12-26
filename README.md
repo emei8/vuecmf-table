@@ -18,6 +18,7 @@ npm run build
 For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 # 后端返回JSON 数据样例：
+```
 {
     "total": 53,
     "last_page": 3,
@@ -60,3 +61,4 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
         }      
     ]
 }
+```
