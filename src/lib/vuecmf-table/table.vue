@@ -1,123 +1,116 @@
 <template>
     <div>
-        <el-row :gutter="10" >
-            <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8"  class="btn-group">
-                <el-button v-if="add" @click="addForm" size="small" type="primary"><i class="fa fa-plus-circle"></i> 添加</el-button>
-                <el-button-group v-if="headerAction">
-                    <el-button v-for="(item,k) in headerAction" size="small" :type="item.type" @click="fun(item.event)"  :title="item.title"><i :class="item.icon"></i> {{ item.label }}</el-button>
-                </el-button-group>
-            </el-col>
-            <el-col :xs="24" :sm="16" :md="16" :lg="16" :xl="16" class="table-tools">
-                <el-row type="flex" justify="end">
-
-                    <el-input size="small"
+        <Row :gutter="10">
+            <Col  :xs="24" :sm="8" :md="8" :lg="8"   class="btn-group">
+                <Button v-if="add" @click="addForm" size="small" type="primary"><Icon type="ios-add-circle" /> 添加</Button>
+                <ButtonGroup v-if="headerAction">
+                    <Button v-for="(item,k) in headerAction" size="small" :type="item.type" @click="fun(item.event)"  :title="item.title"><Icon :type="item.icon" /> {{ item.label }}</Button>
+                </ButtonGroup>
+            </Col>
+            <Col :xs="24" :sm="16" :md="16" :lg="16"  class="table-tools">
+                <Row type="flex" justify="end">
+                    <Input size="small"
                             placeholder="请输入内容"
                             v-model="keywords"
                             @change="search"
                             clearable>
-                    </el-input>
+                    </Input>
 
-                    <el-button type="default" size="small" title="刷新" @click="refresh"><i class="fa fa-refresh"></i></el-button>
-                    <el-popover
+                    <Button type="default" size="small" title="刷新" @click="refresh"><Icon type="md-refresh" /></Button>
+                    <Poptip
                             placement="bottom"
                             v-model="filter_show"
                             :width="filter_form_width"
                             >
-                        <el-form :inline="true" :model="filterForm"  ref="filterForm"  class="filter-form-inline " size="small">
+                        <Form :inline="true" :model="filterForm"  ref="filterForm"  class="filter-form-inline " size="small">
                             <div class="filter-form-content">
                                 <template v-for="(item,index) in columns" >
-                                    <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
-                                        <el-form-item :label="item.label"  :prop="item.prop">
-                                            <el-input v-model="filterForm[item.prop]" :placeholder="'请输入' + item.label" v-if=" item.data_type == 'string' "></el-input>
-                                            <el-select  v-model="filterForm[item.prop]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
-                                                <el-option
-                                                        v-for="(option_item,option_index) in item.options"
-                                                        :key="option_index"
-                                                        :label="option_item"
-                                                        :value="option_index">
-                                                </el-option>
-                                            </el-select>
+                                    <Col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
+                                        <FormItem :label="item.label"  :prop="item.prop">
+                                            <Input v-model="filterForm[item.prop]" :placeholder="'请输入' + item.label" v-if=" item.data_type == 'string' "></Input>
+                                            <Select  v-model="filterForm[item.prop]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                                                <Option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</Option>
+                                            </Select>
 
-                                            <el-date-picker
+                                            <DatePicker
                                                     v-if=" item.data_type == 'date' "
                                                     v-model="filterForm[item.prop]"
                                                     type="daterange"
-                                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                                    format="yyyy-MM-dd HH:mm:ss"
                                                     >
-                                            </el-date-picker>
+                                            </DatePicker>
 
-                                            <el-date-picker
+                                            <DatePicker
                                                     v-if=" item.data_type == 'datetime' "
                                                     v-model="filterForm[item.prop]"
                                                     type="datetimerange"
-                                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                                    format="yyyy-MM-dd HH:mm:ss"
                                                     >
-                                            </el-date-picker>
+                                            </DatePicker>
 
-                                        </el-form-item>
+                                        </FormItem>
 
-                                    </el-col>
+                                    </Col>
                                 </template>
                             </div>
-                            <el-col>
+                            <Col>
                                 <div style="text-align: right; margin: 0">
-                                    <el-button size="mini" type="default" @click="restFilter">重置</el-button>
-                                    <el-button type="primary" size="mini" @click="filter">确定</el-button>
+                                    <Button size="mini" type="default" @click="restFilter">重置</Button>
+                                    <Button type="primary" size="mini" @click="filter">确定</Button>
                                 </div>
-                            </el-col>
-                        </el-form>
+                            </Col>
+                        </Form>
 
-                        <el-button type="default" size="small" title="筛选" slot="reference"><i class="fa fa-filter"></i></el-button>
-                    </el-popover>
+                        <Button type="default" size="small" title="筛选" slot="reference"><Icon type="ios-funnel" /></Button>
+                    </Poptip>
 
                     <!--<el-button type="default" size="small" title="日历"><i class="fa fa-calendar"></i></el-button>
                     <el-button type="default" size="small" title="透视" @click="pivot"><i class="fa fa-table"></i></el-button>
                     <el-button type="default" size="small" title="图表"><i class="fa fa-bar-chart"></i></el-button>
                     <el-button type="default" size="small" title="看板"><i class="fa fa-th-large"></i></el-button>-->
 
-                    <el-dropdown trigger="click" >
-                        <el-button type="default" size="small" title="列">
-                            <i class="fa fa-th"></i>
-                        </el-button>
-                        <el-dropdown-menu slot="dropdown" >
-                            <el-checkbox-group v-model="checkList" class="dropdown-content" @change="fieldChange">
+                    <Dropdown trigger="click" >
+                        <Button type="default" size="small" title="列">
+                            <Icon type="ios-apps" />
+                        </Button>
+                        <DropdownMenu slot="list" >
+                            <CheckboxGroup v-model="checkList" class="dropdown-content" @change="fieldChange">
                                 <template v-for="(item,index) in columns">
-                                    <el-checkbox  :label="item.label" >
+                                    <Checkbox  :label="item.label" >
                                         <span v-html="item.label"></span>
-                                    </el-checkbox><br>
+                                    </Checkbox><br>
                                 </template>
-                            </el-checkbox-group>
-                        </el-dropdown-menu>
-                    </el-dropdown>
+                            </CheckboxGroup >
+                        </DropdownMenu>
+                    </Dropdown>
 
-                    <el-dropdown trigger="click" @command="downloadExport">
-                        <el-button type="default" size="small" title="导出">
+                    <Dropdown trigger="click" @command="downloadExport">
+                        <Button type="default" size="small" title="导出">
                             <i class="fa fa-sign-out"></i>
-                        </el-button>
-                        <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item command="csv">CSV</el-dropdown-item>
-                            <el-dropdown-item command="xlsx">MS-Excel</el-dropdown-item>
-                            <el-dropdown-item command="xml">XML</el-dropdown-item>
-                        </el-dropdown-menu>
-                    </el-dropdown>
+                        </Button>
+                        <DropdownMenu slot="list">
+                            <DropdownItem name="csv">CSV</DropdownItem>
+                            <DropdownItem name="xlsx">MS-Excel</DropdownItem>
+                            <DropdownItem name="xml">XML</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
 
-                </el-row>
+                </Row>
+            </Col>
+        </Row>
 
-
-            </el-col>
-        </el-row>
-
-        <el-table
+        <Table
                 :data="tableData"
+                :columns="columns"
                 border
                 style="width: 100%"
                 size="small"
-                @sort-change="sort"
-                v-loading="loading"
+                @on-sort-change="sort"
+                :loading="loading"
                 :stripe="true"
                 :height="height"
-                @select="currentSelect"
-                @selection-change="getSelectRows"
+                @on-select="currentSelect"
+                @on-selection-change="getSelectRows"
         >
             <el-table-column v-if="checkbox"
                     fixed
@@ -181,7 +174,7 @@
             </el-table-column>
 
 
-        </el-table>
+        </Table>
 
         <div class="pagination">
             <el-pagination
@@ -273,12 +266,13 @@
     import jsonExport from './jsonExport'
 
     /*
-    如果elementUI页面使用CDN外链接引入的话，则注释这段
+    如果iview页面使用CDN外链接引入的话，则注释这段
     import 'font-awesome/css/font-awesome.min.css'
-    import ElementUI from 'element-ui'
-    import 'element-ui/lib/theme-chalk/index.css'
-    Vue.use(ElementUI)
+    import iView from 'iview'
+    import 'iview/dist/styles/iview.css'
+    Vue.use(iView)
     */
+
 
     export default {
         name:'vc-table',
@@ -452,8 +446,16 @@
             //加载表格字段回调
             updateTableField: function (data) {
                 let that = this
-                this.columns = data.data.fields
-                this.columns.forEach(function (val,key) {
+                if(this.checkbox == true){
+                    this.columns.push({
+                        type: 'selection',
+                        width: 50,
+                        align: 'center'
+                    })
+                }
+
+                let fields_list = data.data.fields
+                fields_list.forEach(function (val,key) {
                     let filterName = val['prop']
                     if(val['filterName'] != '' &&  val['filterName'] != undefined){
                         filterName = val['filterName']
@@ -470,6 +472,22 @@
                     if(val['show'] == true){
                         that.checkList.push(val['label'])
                     }
+
+                    let col = {
+                        title: val['label'],
+                        key: val['prop']
+                    }
+
+                    if(this.checkbox == true){
+                        col['_checked'] = val['checked'] == undefined ? false : val['checked']
+
+                    }
+
+                    this.columns.push({
+                        title: val['label'],
+                        key: val['prop'],
+                        _checked: true
+                    })
 
                 })
 
@@ -568,9 +586,9 @@
                 })
             },
             //列排序
-            sort(column){
-                this.orderField = column.prop
-                this.orderSort = column.order == 'descending' ? 'desc' : 'asc'
+            sort(column,key,order){
+                this.orderField = column.key
+                this.orderSort = order
                 this.refresh()
             },
             //拉取列表数据的回调
@@ -606,39 +624,14 @@
 </script>
 
 <style scoped="true">
-    .el-col{ margin-bottom: 10px;}
-    .filter-form-inline .el-col{ margin-bottom: 0;}
-    .el-form-item--small.el-form-item{ margin-bottom: 10px; }
-    .pagination{ margin: 10px auto;}
-    .table-tools{ text-align: right}
-    .btn-group{ text-align: left}
-    .dropdown-content{ max-height: 260px; padding: 10px 15px; overflow-y: auto; max-width: 500px; overflow-x: auto }
-    .table-tools .el-button{ margin-left: -1px !important;  border-radius: 0px;}
-    .el-dropdown:last-child .el-button{ border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important;  }
-    .el-date-editor--daterange.el-input, .el-date-editor--daterange.el-input__inner{
-        width: 100%  !important;
-    }
-    .el-date-editor--datetimerange.el-input, .el-date-editor--datetimerange.el-input__inner{
-        width: 100%  !important;
-    }
-    .filter-form-content{
-        max-height:460px; display: block; overflow-y: auto;}
+
 
 
 
 </style>
 
 <style>
-    .table-tools .el-input__inner{ border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
-    .el-button--small{ font-size: 14px !important; padding: 8px 9px !important; }
-    .el-table--small td, .el-table--small th{ padding: 5px 0 !important;}
-    .el-form-item--small .el-form-item__content{
-        width: 70% !important;
-    }
-    .el-popover{ max-width: 860px !important; }
 
-    .el-dialog{ margin-top: 5vh !important;}
-    .el-dialog__body{ height:60vh;overflow: auto;}
 
 </style>
 

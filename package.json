@@ -13,6 +13,7 @@
     "element-ui": "^2.4.9",
     "file-saver": "^2.0.0-rc.4",
     "font-awesome": "^4.7.0",
+    "iview": "^3.2.1",
     "vue": "^2.5.11",
     "xlsx": "^0.14.0"
   },
