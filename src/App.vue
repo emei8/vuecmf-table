@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :operate-width="200"></vc-table>
+    <vc-table :add="true" :edit="true" :del="true" :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :operate-width="200"></vc-table>
 
   </div>
 </template>
@@ -42,11 +42,12 @@ export default {
             }
         ],
         //针对自定义单元格内容的事件处理， 可借助jquery进行DOM操作和事件处理
-        cellEvent: [
+        cellEvent:
             function (currentList) { //currentList 为当前页列表数据
+                console.log('cellevent')
                 console.log(currentList)
             }
-        ],
+        ,
         rowAction:[
             {
                 event: function (index,row) {
@@ -112,9 +113,8 @@ export default {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+
 }
 
 h1, h2 {

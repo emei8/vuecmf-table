@@ -2,6 +2,7 @@
     <div>
         <el-row :gutter="10" >
             <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8"  class="btn-group">
+                <el-button v-if="add" @click="addForm" size="small" type="primary"><i class="fa fa-plus-circle"></i> 添加</el-button>
                 <el-button-group v-if="headerAction">
                     <el-button v-for="(item,k) in headerAction" size="small" :type="item.type" @click="fun(item.event)"  :title="item.title"><i :class="item.icon"></i> {{ item.label }}</el-button>
                 </el-button-group>
@@ -16,7 +17,7 @@
                             clearable>
                     </el-input>
 
-                    <el-button type="default" size="small" title="刷新" @click="refreshList"><i class="fa fa-refresh"></i></el-button>
+                    <el-button type="default" size="small" title="刷新" @click="refresh"><i class="fa fa-refresh"></i></el-button>
                     <el-popover
                             placement="bottom"
                             v-model="filter_show"
@@ -208,6 +209,59 @@
             <el-progress :text-inside="true" :stroke-width="18" :percentage="percentage"></el-progress>
         </el-dialog>
 
+        <!-- 数据表单 -->
+        <el-dialog
+                title="添加"
+                :visible.sync="dataForm_show"
+                width="60%"
+                :lock-scroll = "true"
+                >
+            <el-form :label-width="label_width" :model="dataForm"  ref="dataForm"  size="small">
+                <el-row>
+                    <template v-for="(item,index) in columns" >
+                        <input type="hidden" v-model="dataForm[item.prop]" v-if=" item.data_type == 'hidden' ">
+
+                            <el-form-item :label="item.label"  :prop="item.prop"  v-else=" item.data_form  && item.data_type != 'hidden' " >
+                                <el-select  v-model="dataForm[item.prop]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                                    <el-option
+                                            v-for="(option_item,option_index) in item.options"
+                                            :key="option_index"
+                                            :label="option_item"
+                                            :value="option_index">
+                                    </el-option>
+                                </el-select>
+
+                                <el-date-picker
+                                        v-else-if=" item.data_type == 'date' "
+                                        v-model="dataForm[item.prop]"
+                                        type="datetime"
+                                        value-format="yyyy-MM-dd HH:mm:ss"
+                                >
+                                </el-date-picker>
+
+                                <el-date-picker
+                                        v-else-if=" item.data_type == 'datetime' "
+                                        v-model="filterForm[item.prop]"
+                                        type="datetime"
+                                        value-format="yyyy-MM-dd HH:mm:ss"
+                                >
+                                </el-date-picker>
+
+                                <el-input v-model="dataForm[item.prop]" :placeholder="'请输入' + item.label" v-else=" item.data_type == 'string' "></el-input>
+
+                            </el-form-item>
+
+
+                    </template>
+                </el-row>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="mini" type="default" @click="resetDataForm">重置</el-button>
+                <el-button type="primary" size="mini" @click="saveDataForm">保存</el-button>
+            </div>
+
+        </el-dialog>
+
 
     </div>
 
@@ -215,11 +269,12 @@
 
 <script>
     import Vue from 'vue'
-   // import 'font-awesome/css/font-awesome.min.css'
     import axios from 'axios'
     import jsonExport from './jsonExport'
+
     /*
     如果elementUI页面使用CDN外链接引入的话，则注释这段
+    import 'font-awesome/css/font-awesome.min.css'
     import ElementUI from 'element-ui'
     import 'element-ui/lib/theme-chalk/index.css'
     Vue.use(ElementUI)
@@ -227,9 +282,14 @@
 
     export default {
         name:'vc-table',
-        props:['selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
+        props:['add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
         data() {
             return {
+                //数据表单
+                dataForm:{},
+                dataForm_show:false, //数据表单显示
+                label_width:'30%', //表单文本宽度
+
                 //筛选表单
                 filterForm: {},
                 filter_show: false, //筛选表单显示
@@ -264,15 +324,14 @@
             }
         },
         mounted(){
-            this.pageSize = this.limit
-            this.loadTableField()
-            this.refreshList()
-            this.resizeWin()
+            let that = this
+            that.pageSize = that.limit
+            that.loadTableField()
+            that.refresh()
+            that.resizeWin()
             window.onresize = () => {
-                this.resizeWin()
+                that.resizeWin()
             }
-
-
 
         },
        /* watch:{
@@ -282,9 +341,27 @@
             }
         },*/
         updated() {
-
+            let that = this
+            //执行外部传入的事件
+            if(that.$props.cellEvent != undefined && that.$props.cellEvent != '' && that.$props.cellEvent != null){
+                let callfun = that.$props.cellEvent
+                callfun(that.tableData)
+            }
         },
         methods: {
+            //添加表单
+            addForm: function () {
+                this.dataForm_show = true
+                //this.$refs['dataForm'].resetFields()
+            },
+            //重置数据表单
+            resetDataForm: function () {
+                this.$refs['dataForm'].resetFields()
+            },
+            //保存数据表单
+            saveDataForm: function () {
+                this.dataForm_show = false
+            },
             post: function (url,data) {
                 return axios.post(url, data)
             },
@@ -370,7 +447,7 @@
             //筛选
             filter: function () {
                 this.filter_show = false
-                this.refreshList()
+                this.refresh()
             },
             //加载表格字段回调
             updateTableField: function (data) {
@@ -393,7 +470,9 @@
                     if(val['show'] == true){
                         that.checkList.push(val['label'])
                     }
+
                 })
+
             },
             //加载表格字段信息
             loadTableField: function () {
@@ -401,7 +480,7 @@
             },
             //搜索
             search: function () {
-                this.refreshList()
+                this.refresh()
             },
             //拉取要导出的数据的回调
             getExportData: function (data) {
@@ -457,7 +536,7 @@
                 this.pullData(this.downloadCurrentPage,this.getExportData)
             },
             //刷新
-            refreshList: function () {
+            refresh: function () {
                 this.loading = true
                 this.pullData(this.currentPage,this.getList)
             },
@@ -466,8 +545,10 @@
                 //如果页数不够page-count，sizes 将不会显示
                 if(document.body.offsetWidth < 768){
                     this.pageLayout = 'prev, pager, next'
+                    this.label_width = '30%'
                 }else{
                     this.pageLayout = 'total, sizes, prev, pager, next, jumper'
+                    this.label_width = '20%'
                 }
 
                 this.filter_form_width = document.body.offsetWidth * 0.8
@@ -490,7 +571,7 @@
             sort(column){
                 this.orderField = column.prop
                 this.orderSort = column.order == 'descending' ? 'desc' : 'asc'
-                this.refreshList()
+                this.refresh()
             },
             //拉取列表数据的回调
             getList(data){
@@ -506,25 +587,18 @@
                 this.totalPages = Math.ceil(this.total / this.pageSize)
                 this.loading = false
 
-                //执行外部传入的事件
-                let that = this
-                if(this.$props.cellEvent != undefined && this.$props.cellEvent != '' && this.$props.cellEvent != null){
-                    this.$props.cellEvent.forEach(function (value,index) {
-                        value(that.tableData)
-                    })
-                }
 
 
             },
             //每页显示条数修改
             handleSizeChange(val) {
                 this.pageSize = val
-                this.refreshList()
+                this.refresh()
             },
             //当前页修改
             handleCurrentChange(val) {
                 this.currentPage = val
-                this.refreshList()
+                this.refresh()
 
             }
         }
@@ -551,6 +625,7 @@
         max-height:460px; display: block; overflow-y: auto;}
 
 
+
 </style>
 
 <style>
@@ -561,6 +636,9 @@
         width: 70% !important;
     }
     .el-popover{ max-width: 860px !important; }
+
+    .el-dialog{ margin-top: 5vh !important;}
+    .el-dialog__body{ height:60vh;overflow: auto;}
 
 </style>
 
