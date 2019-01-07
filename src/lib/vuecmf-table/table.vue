@@ -26,23 +26,23 @@
                             <div class="filter-form-content">
                                 <template v-for="(item,index) in columns" >
                                     <Col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
-                                        <FormItem :label="item.label"  :prop="item.prop">
-                                            <Input v-model="filterForm[item.prop]" :placeholder="'请输入' + item.label" v-if=" item.data_type == 'string' "></Input>
-                                            <Select  v-model="filterForm[item.prop]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                                        <FormItem :label="item.title"  :prop="item.slot">
+                                            <Input v-model="filterForm[item.slot]" :placeholder="'请输入' + item.title" v-if=" item.data_type == 'string' "></Input>
+                                            <Select  v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                                                 <Option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</Option>
                                             </Select>
 
                                             <DatePicker
                                                     v-if=" item.data_type == 'date' "
-                                                    v-model="filterForm[item.prop]"
+                                                    v-model="filterForm[item.slot]"
                                                     type="daterange"
-                                                    format="yyyy-MM-dd HH:mm:ss"
+                                                    format="yyyy-MM-dd"
                                                     >
                                             </DatePicker>
 
                                             <DatePicker
                                                     v-if=" item.data_type == 'datetime' "
-                                                    v-model="filterForm[item.prop]"
+                                                    v-model="filterForm[item.slot]"
                                                     type="datetimerange"
                                                     format="yyyy-MM-dd HH:mm:ss"
                                                     >
@@ -86,7 +86,7 @@
 
                     <Dropdown trigger="click" @command="downloadExport">
                         <Button type="default" size="small" title="导出">
-                            <i class="fa fa-sign-out"></i>
+                            <Icon type="md-download" />
                         </Button>
                         <DropdownMenu slot="list">
                             <DropdownItem name="csv">CSV</DropdownItem>
@@ -112,148 +112,118 @@
                 @on-select="currentSelect"
                 @on-selection-change="getSelectRows"
         >
-            <el-table-column v-if="checkbox"
-                    fixed
-                    type="selection"
-                    :selectable="selectable"
-                    width="50">
-            </el-table-column>
             <template v-for="(item,index) in columns">
-                <el-table-column v-if="item.show"
-                        :prop="item.prop"
-                        :label="item.label"
-                        :sortable="item.sortable"
-                        :fixed= "item.fixed"
-                        :width="item.width"
-                        >
+                <!-- 表格头部自定义 -->
+                <template slot="header" slot-scope="{ row }" v-if=" item.show && item['slot'] != undefined && item['slot'] != 'action' && item['type'] != 'selection' ">
+                    <Tooltip v-if="item.tooltip" placement="bottom" theme="light">
+                        <i class="el-icon-question"></i>
+                        <div slot="content" >
+                            <span v-html="item.tooltip"></span>
+                        </div>
+                    </Tooltip>
+                    <span v-html="item.title" style="font-size: 14px;"></span>
+                </template>
 
-                    <template slot="header" slot-scope="scope">
-                        <el-tooltip v-if="item.tooltip" placement="bottom" effect="light">
-                            <i class="el-icon-question"></i>
-                            <div slot="content" >
-                                <span v-html="item.tooltip"></span>
-                            </div>
-                        </el-tooltip>
-                        <span v-html="item.label" style="font-size: 14px;">
-                        </span>
-                        <!--<div><el-input
-                                v-model="filterForm[item.prop]"
-                                size="mini"
-                                placeholder="输入关键字搜索"/>
-                        </div>-->
-                    </template>
-
-                    <template slot-scope="scope">
-                        <span  v-html="formatter(scope.row,item.prop,item.data_type,item.options)"></span>
-                    </template>
-
-                </el-table-column>
+                <!-- 表格行自定义 -->
+                <template slot-scope="{ row }" v-if=" item.show && item['slot'] != undefined && item['slot'] != 'action' && item['type'] != 'selection' " :slot="item.slot" >
+                    <span  v-html="formatter(row,item.slot,item.data_type,item.options)"></span>
+                </template>
             </template>
 
-            <el-table-column
-                    v-if="rowAction"
-                    fixed="right"
-                    label="操作"
-                    :width="operateWidth"
-                    >
-                <template slot-scope="scope" >
-                    <span v-for="(item,k) in rowAction">
-                        <template v-if=" item.callback == undefined || item.callback(scope.$index, scope.row) == false || scope.row.callback_result == false ">
-                            <el-button style="margin-right: 5px"
+            <!-- 操作列 -->
+            <template slot-scope="{ row, index }" slot="action" v-if="rowAction">
+                <span v-for="(item,k) in rowAction">
+                        <template v-if=" item.callback == undefined || item.callback(index, row) == false || row.callback_result == false ">
+                            <Button style="margin-right: 5px"
                                        size="mini"
                                        :type="item.type"
-                                       @click.native.prevent="rowFun(item.event,scope.$index, scope.row)" ><i :class="item.icon"></i> {{item.title}}</el-button>
+                                       @click.native.prevent="rowFun(item.event,index, row)" ><Icon :type="item.icon" /> {{item.title}}</Button>
                         </template>
                         <template v-else>
                             <span v-html="scope.row.callback_result"></span>
                         </template>
 
                     </span>
-
-                </template>
-            </el-table-column>
-
+            </template>
 
         </Table>
 
         <div class="pagination">
-            <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="currentPage"
-                    :page-sizes="[5, 20, 30, 40,50,100,200,300,500,1000]"
+            <Page
+                    @on-page-size-change="handleSizeChange"
+                    @on-change="handleCurrentChange"
+                    :current="currentPage"
                     :page-size="pageSize"
-                    :layout="pageLayout"
-                    :pager-count="5"
-                    :total="total">
-            </el-pagination>
+                    :total="total"
+                    :page-size-opts="[5, 20, 30, 40,50,100,200,300,500,1000]"
+                    :show-total="showTotal"
+                    :show-elevator="showElevator"
+                    :show-sizer="showSizer"
+                    >
+            </Page>
         </div>
 
 
-        <el-dialog
+        <Modal
                 title="正在下载数据，请稍后..."
-                :visible.sync="downloadTips"
+                v-model="downloadTips"
                 width="30%"
-                :close-on-click-modal="false"
-                :close-on-press-escape="false"
-                :show-close="false"
+                :closable="false"
                 >
-            <span class="el-tag--danger">{{downloadError}}</span>
-            <el-progress :text-inside="true" :stroke-width="18" :percentage="percentage"></el-progress>
-        </el-dialog>
+            <span class="ivu-tag-red">{{downloadError}}</span>
+            <Progress  :stroke-width="18" :percent="percentage"></Progress >
+        </Modal>
 
         <!-- 数据表单 -->
-        <el-dialog
+        <Modal
                 title="添加"
-                :visible.sync="dataForm_show"
+                v-model="dataForm_show"
                 width="60%"
-                :lock-scroll = "true"
                 >
-            <el-form :label-width="label_width" :model="dataForm"  ref="dataForm"  size="small">
-                <el-row>
-                    <template v-for="(item,index) in columns" >
-                        <input type="hidden" v-model="dataForm[item.prop]" v-if=" item.data_type == 'hidden' ">
+            <Form :label-width="label_width" :model="dataForm"  ref="dataForm"  >
+                <Row v-for="(item,index) in columns" >
+                    <input type="hidden" v-model="dataForm[item.slot]" v-if=" item.data_type == 'hidden' ">
 
-                            <el-form-item :label="item.label"  :prop="item.prop"  v-else=" item.data_form  && item.data_type != 'hidden' " >
-                                <el-select  v-model="dataForm[item.prop]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
-                                    <el-option
-                                            v-for="(option_item,option_index) in item.options"
-                                            :key="option_index"
-                                            :label="option_item"
-                                            :value="option_index">
-                                    </el-option>
-                                </el-select>
+                    <FormItem :label="item.title"  :prop="item.slot"  v-else=" item.data_form  && item.data_type != 'hidden' " >
+                        <Select  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                            <Option
+                                    v-for="(option_item,option_index) in item.options"
+                                    :key="option_index"
+                                    :value="option_index">
+                                {{ option_item }}
+                            </Option>
+                        </Select>
 
-                                <el-date-picker
-                                        v-else-if=" item.data_type == 'date' "
-                                        v-model="dataForm[item.prop]"
-                                        type="datetime"
-                                        value-format="yyyy-MM-dd HH:mm:ss"
-                                >
-                                </el-date-picker>
+                        <DatePicker
+                                v-else-if=" item.data_type == 'date' "
+                                v-model="dataForm[item.slot]"
+                                type="date"
+                                format="yyyy-MM-dd"
+                        >
+                        </DatePicker>
 
-                                <el-date-picker
-                                        v-else-if=" item.data_type == 'datetime' "
-                                        v-model="filterForm[item.prop]"
-                                        type="datetime"
-                                        value-format="yyyy-MM-dd HH:mm:ss"
-                                >
-                                </el-date-picker>
+                        <DatePicker
+                                v-else-if=" item.data_type == 'datetime' "
+                                v-model="filterForm[item.slot]"
+                                type="datetime"
+                                format="yyyy-MM-dd HH:mm:ss"
+                        >
+                        </DatePicker>
 
-                                <el-input v-model="dataForm[item.prop]" :placeholder="'请输入' + item.label" v-else=" item.data_type == 'string' "></el-input>
+                        <Input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></Input>
 
-                            </el-form-item>
+                    </FormItem>
 
 
-                    </template>
-                </el-row>
-            </el-form>
+
+                </Row>
+            </Form>
             <div slot="footer" class="dialog-footer">
-                <el-button size="mini" type="default" @click="resetDataForm">重置</el-button>
-                <el-button type="primary" size="mini" @click="saveDataForm">保存</el-button>
+                <Button size="mini" type="default" @click="resetDataForm">重置</Button>
+                <Button type="primary" size="mini" @click="saveDataForm">保存</Button>
             </div>
 
-        </el-dialog>
+        </Modal>
 
 
     </div>
@@ -267,7 +237,6 @@
 
     /*
     如果iview页面使用CDN外链接引入的话，则注释这段
-    import 'font-awesome/css/font-awesome.min.css'
     import iView from 'iview'
     import 'iview/dist/styles/iview.css'
     Vue.use(iView)
@@ -294,7 +263,9 @@
                 checkList: [], //列显示
 
                 //分页设置
-                pageLayout: 'total, sizes, prev, pager, next, jumper',
+                showTotal:true, //显示总数
+                showElevator:true, //显示电梯，可以快速切换到某一页
+                showSizer:true, //显示分页，用来改变page-size
                 currentPage:1,
                 pageSize:20,
 
@@ -446,14 +417,18 @@
             //加载表格字段回调
             updateTableField: function (data) {
                 let that = this
-                if(this.checkbox == true){
-                    this.columns.push({
+
+                //可多选列
+                if(that.checkbox == true){
+                    that.columns.push({
                         type: 'selection',
                         width: 50,
-                        align: 'center'
+                        align: 'center',
+                        fixed: true
                     })
                 }
 
+                //主体字段
                 let fields_list = data.data.fields
                 fields_list.forEach(function (val,key) {
                     let filterName = val['prop']
@@ -475,21 +450,36 @@
 
                     let col = {
                         title: val['label'],
-                        key: val['prop']
+                        slot: val['prop'],
+                        fixed: val['fixed'],
+                        data_type: val['data_type'],
+                        options: val['options'],
+                        tooltip: val['tooltip'],
+                        show: val['show'],
+                        sortable: val['sortable'],
+                        data_form: val['data_form'],
+                        filter: val['filter']
                     }
 
-                    if(this.checkbox == true){
+                    if(that.checkbox == true){
                         col['_checked'] = val['checked'] == undefined ? false : val['checked']
-
                     }
 
-                    this.columns.push({
-                        title: val['label'],
-                        key: val['prop'],
-                        _checked: true
-                    })
+                    col['_disabled'] = val['disabled'] == undefined ? false : val['disabled'];
 
+                    that.columns.push(col)
                 })
+
+                //操作列
+                if(that.rowAction != undefined && that.rowAction.length > 0){
+                    that.columns.push({
+                        title: '操作',
+                        slot: 'action',
+                        width: that.operateWidth,
+                        align: 'center'
+                    })
+                }
+
 
             },
             //加载表格字段信息
@@ -515,8 +505,8 @@
                         //只下载显示的列
                         if(v['show']){
                             //过滤HTML标签
-                            let label = v['label'].replace(/<[^>]*>/g,'')
-                            let value = val[v['prop']]
+                            let label = v['title'].replace(/<[^>]*>/g,'')
+                            let value = val[v['slot']]
                             if(v['options'] != undefined && v['options'] != ''){
                                 value = v['options'][value]
                             }
@@ -562,10 +552,14 @@
             resizeWin: function () {
                 //如果页数不够page-count，sizes 将不会显示
                 if(document.body.offsetWidth < 768){
-                    this.pageLayout = 'prev, pager, next'
+                    this.showTotal = false
+                    this.showElevator = false
+                    this.showSizer = false
                     this.label_width = '30%'
                 }else{
-                    this.pageLayout = 'total, sizes, prev, pager, next, jumper'
+                    this.showTotal = true
+                    this.showElevator = true
+                    this.showSizer = true
                     this.label_width = '20%'
                 }
 
