@@ -112,21 +112,21 @@
                 @on-select="currentSelect"
                 @on-selection-change="getSelectRows"
         >
-            <template v-for="(item,index) in columns">
+            <template v-for="(item,index) in fields_data">
                 <!-- 表格头部自定义 -->
-                <template slot="header" slot-scope="{ row }" v-if=" item.show && item['slot'] != undefined && item['slot'] != 'action' && item['type'] != 'selection' ">
+                <template slot="header" slot-scope="{ row }" v-if=" item.show ">
                     <Tooltip v-if="item.tooltip" placement="bottom" theme="light">
                         <i class="el-icon-question"></i>
                         <div slot="content" >
                             <span v-html="item.tooltip"></span>
                         </div>
                     </Tooltip>
-                    <span v-html="item.title" style="font-size: 14px;"></span>
+                    <span v-html="item.label" style="font-size: 14px;"></span>
                 </template>
 
                 <!-- 表格行自定义 -->
-                <template slot-scope="{ row }" v-if=" item.show && item['slot'] != undefined && item['slot'] != 'action' && item['type'] != 'selection' " :slot="item.slot" >
-                    <span  v-html="formatter(row,item.slot,item.data_type,item.options)"></span>
+                <template slot-scope="{ row }" v-if=" item.show " :slot="item.prop" >
+                    <span  v-html="formatter(row,item.prop,item.data_type,item.options)"></span>
                 </template>
             </template>
 
@@ -140,7 +140,8 @@
                                        @click.native.prevent="rowFun(item.event,index, row)" ><Icon :type="item.icon" /> {{item.title}}</Button>
                         </template>
                         <template v-else>
-                            <span v-html="scope.row.callback_result"></span>
+
+                            <span v-html="row.callback_result"></span>
                         </template>
 
                     </span>
@@ -181,11 +182,11 @@
                 width="60%"
                 >
             <Form :label-width="label_width" :model="dataForm"  ref="dataForm"  >
-                <Row v-for="(item,index) in columns" >
-                    <input type="hidden" v-model="dataForm[item.slot]" v-if=" item.data_type == 'hidden' ">
+                <Row v-for="(item,index) in fields_data" >
+                    <input type="hidden" v-model="dataForm[item.prop]" v-if=" item.data_type == 'hidden' ">
 
-                    <FormItem :label="item.title"  :prop="item.slot"  v-else=" item.data_form  && item.data_type != 'hidden' " >
-                        <Select  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                    <FormItem :label="item.label"  :prop="item.prop"  v-else=" item.data_form  && item.data_type != 'hidden' " >
+                        <Select  v-model="dataForm[item.prop]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                             <Option
                                     v-for="(option_item,option_index) in item.options"
                                     :key="option_index"
@@ -196,7 +197,7 @@
 
                         <DatePicker
                                 v-else-if=" item.data_type == 'date' "
-                                v-model="dataForm[item.slot]"
+                                v-model="dataForm[item.prop]"
                                 type="date"
                                 format="yyyy-MM-dd"
                         >
@@ -204,13 +205,13 @@
 
                         <DatePicker
                                 v-else-if=" item.data_type == 'datetime' "
-                                v-model="filterForm[item.slot]"
+                                v-model="filterForm[item.prop]"
                                 type="datetime"
                                 format="yyyy-MM-dd HH:mm:ss"
                         >
                         </DatePicker>
 
-                        <Input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></Input>
+                        <Input v-model="dataForm[item.prop]" :placeholder="'请输入' + item.label" v-else=" item.data_type == 'string' "></Input>
 
                     </FormItem>
 
@@ -248,6 +249,7 @@
         props:['add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
         data() {
             return {
+                fields_data:[], //字段信息
                 //数据表单
                 dataForm:{},
                 dataForm_show:false, //数据表单显示
@@ -429,8 +431,8 @@
                 }
 
                 //主体字段
-                let fields_list = data.data.fields
-                fields_list.forEach(function (val,key) {
+                that.fields_data = data.data.fields
+                that.fields_data.forEach(function (val,key) {
                     let filterName = val['prop']
                     if(val['filterName'] != '' &&  val['filterName'] != undefined){
                         filterName = val['filterName']
@@ -444,6 +446,12 @@
                         that.$set(that.filterForm,filterName,'')
                         //that.filterForm[val['prop']] = ''  //这种生成的v-model的数据 动态绑定v-model是不生效的
                     }
+
+                    if(val['data_form'] == true){
+                        that.$set(that.dataForm,val['prop'],'')
+                    }
+
+
                     if(val['show'] == true){
                         that.checkList.push(val['label'])
                     }
