@@ -1,33 +1,38 @@
 <template>
-    <div>
-        <Row :gutter="10">
+    <div :style="'width:'+ width + 'px'">
+        <Row :gutter="10" >
             <Col  :xs="24" :sm="8" :md="8" :lg="8"   class="btn-group">
-                <Button v-if="add" @click="addForm" size="small" type="primary"><Icon type="ios-add-circle" /> 添加</Button>
+                <Button v-if="add" @click="addForm"  type="primary"><Icon type="md-add-circle" /> 添加</Button>
                 <ButtonGroup v-if="headerAction">
-                    <Button v-for="(item,k) in headerAction" size="small" :type="item.type" @click="fun(item.event)"  :title="item.title"><Icon :type="item.icon" /> {{ item.label }}</Button>
+                    <template v-for="(item, index) in headerAction">
+                        <Button   :type="item.type" @click="fun(item.event)"  :title="item.title"><Icon :type="item.icon" /> {{ item.label }}</Button>
+                    </template>
                 </ButtonGroup>
             </Col>
             <Col :xs="24" :sm="16" :md="16" :lg="16"  class="table-tools">
                 <Row type="flex" justify="end">
-                    <Input size="small"
-                            placeholder="请输入内容"
-                            v-model="keywords"
-                            @change="search"
-                            clearable>
-                    </Input>
+                    <div>
+                        <Input
+                                placeholder="请输入内容"
+                                v-model="keywords"
+                                @on-change="search"
+                                clearable>
+                        </Input>
+                    </div>
 
-                    <Button type="default" size="small" title="刷新" @click="refresh"><Icon type="md-refresh" /></Button>
+                    <Button type="default"  title="刷新" @click="refresh"><Icon type="md-refresh" /></Button>
                     <Poptip
-                            placement="bottom"
-                            v-model="filter_show"
+                            placement="bottom-end"
                             :width="filter_form_width"
                             >
-                        <Form :inline="true" :model="filterForm"  ref="filterForm"  class="filter-form-inline " size="small">
-                            <div class="filter-form-content">
-                                <template v-for="(item,index) in columns" >
-                                    <Col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
+                        <Button type="default"  title="筛选" ><Icon type="ios-funnel" /></Button>
+                        <div slot="content">
+                            <Form :inline="true" :model="filterForm"  ref="filterForm"  >
+                                <div class="filter-form-content">
+                                    <template v-for="(item,index) in fields_data" >
+                                        <Col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
                                         <FormItem :label="item.title"  :prop="item.slot">
-                                            <Input v-model="filterForm[item.slot]" :placeholder="'请输入' + item.title" v-if=" item.data_type == 'string' "></Input>
+                                            <Input v-model="filterForm[item.slot]" clearable  :placeholder="'请输入' + item.title" v-if=" item.data_type == 'string' "></Input>
                                             <Select  v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                                                 <Option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</Option>
                                             </Select>
@@ -37,7 +42,7 @@
                                                     v-model="filterForm[item.slot]"
                                                     type="daterange"
                                                     format="yyyy-MM-dd"
-                                                    >
+                                            >
                                             </DatePicker>
 
                                             <DatePicker
@@ -45,23 +50,22 @@
                                                     v-model="filterForm[item.slot]"
                                                     type="datetimerange"
                                                     format="yyyy-MM-dd HH:mm:ss"
-                                                    >
+                                            >
                                             </DatePicker>
 
                                         </FormItem>
 
-                                    </Col>
-                                </template>
-                            </div>
-                            <Col>
-                                <div style="text-align: right; margin: 0">
-                                    <Button size="mini" type="default" @click="restFilter">重置</Button>
-                                    <Button type="primary" size="mini" @click="filter">确定</Button>
+                                        </Col>
+                                    </template>
                                 </div>
-                            </Col>
-                        </Form>
-
-                        <Button type="default" size="small" title="筛选" slot="reference"><Icon type="ios-funnel" /></Button>
+                                <Col>
+                                <div style="text-align: right; margin: 0">
+                                    <Button  type="default" @click="restFilter">重置</Button>
+                                    <Button type="primary"  @click="filter">确定</Button>
+                                </div>
+                                </Col>
+                            </Form>
+                        </div>
                     </Poptip>
 
                     <!--<el-button type="default" size="small" title="日历"><i class="fa fa-calendar"></i></el-button>
@@ -69,31 +73,32 @@
                     <el-button type="default" size="small" title="图表"><i class="fa fa-bar-chart"></i></el-button>
                     <el-button type="default" size="small" title="看板"><i class="fa fa-th-large"></i></el-button>-->
 
-                    <Dropdown trigger="click" >
-                        <Button type="default" size="small" title="列">
+                    <Poptip placement="bottom-end" :width="200" >
+                        <Button type="default"  title="列">
                             <Icon type="ios-apps" />
                         </Button>
-                        <DropdownMenu slot="list" >
-                            <CheckboxGroup v-model="checkList" class="dropdown-content" @change="fieldChange">
-                                <template v-for="(item,index) in columns">
-                                    <Checkbox  :label="item.label" >
-                                        <span v-html="item.label"></span>
+                        <div slot="content">
+                            <CheckboxGroup v-model="checkList" class="dropdown-content" @on-change="fieldChange">
+                                <template v-for="(item,index) in fields_data">
+                                    <Checkbox  :label="item.slot" >
+                                        <span v-html="item.title"></span>
                                     </Checkbox><br>
                                 </template>
                             </CheckboxGroup >
-                        </DropdownMenu>
-                    </Dropdown>
+                        </div>
+                    </Poptip>
 
-                    <Dropdown trigger="click" @command="downloadExport">
-                        <Button type="default" size="small" title="导出">
+                    <Dropdown trigger="click" @on-click="downloadExport" :transfer="true"  placement="bottom-end">
+                        <Button type="default"  title="导出">
                             <Icon type="md-download" />
                         </Button>
-                        <DropdownMenu slot="list">
-                            <DropdownItem name="csv">CSV</DropdownItem>
-                            <DropdownItem name="xlsx">MS-Excel</DropdownItem>
-                            <DropdownItem name="xml">XML</DropdownItem>
-                        </DropdownMenu>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item name="csv">CSV</Dropdown-item>
+                            <Dropdown-item name="xlsx">MS-Excel</Dropdown-item>
+                            <Dropdown-item name="xml">XML</Dropdown-item>
+                        </Dropdown-menu>
                     </Dropdown>
+
 
                 </Row>
             </Col>
@@ -103,31 +108,17 @@
                 :data="tableData"
                 :columns="columns"
                 border
-                style="width: 100%"
-                size="small"
                 @on-sort-change="sort"
                 :loading="loading"
                 :stripe="true"
                 :height="height"
+                :width="width"
                 @on-select="currentSelect"
                 @on-selection-change="getSelectRows"
         >
-            <template v-for="(item,index) in fields_data">
-                <!-- 表格头部自定义 -->
-                <template slot="header" slot-scope="{ row }" v-if=" item.show ">
-                    <Tooltip v-if="item.tooltip" placement="bottom" theme="light">
-                        <i class="el-icon-question"></i>
-                        <div slot="content" >
-                            <span v-html="item.tooltip"></span>
-                        </div>
-                    </Tooltip>
-                    <span v-html="item.label" style="font-size: 14px;"></span>
-                </template>
-
-                <!-- 表格行自定义 -->
-                <template slot-scope="{ row }" v-if=" item.show " :slot="item.prop" >
-                    <span  v-html="formatter(row,item.prop,item.data_type,item.options)"></span>
-                </template>
+            <!-- 表格行自定义 -->
+            <template v-for="(item,index) in columns"  slot-scope="{ row }"   :slot="item.slot"  >
+                <span  v-html="formatter(row,item.slot,item.data_type,item.options)"></span>
             </template>
 
             <!-- 操作列 -->
@@ -135,9 +126,8 @@
                 <span v-for="(item,k) in rowAction">
                         <template v-if=" item.callback == undefined || item.callback(index, row) == false || row.callback_result == false ">
                             <Button style="margin-right: 5px"
-                                       size="mini"
-                                       :type="item.type"
-                                       @click.native.prevent="rowFun(item.event,index, row)" ><Icon :type="item.icon" /> {{item.title}}</Button>
+                                    :type="item.type"
+                                    @click.native.prevent="rowFun(item.event,index, row)" ><Icon :type="item.icon" /> {{item.title}}</Button>
                         </template>
                         <template v-else>
 
@@ -173,6 +163,9 @@
                 >
             <span class="ivu-tag-red">{{downloadError}}</span>
             <Progress  :stroke-width="18" :percent="percentage"></Progress >
+            <div slot="footer">
+
+            </div>
         </Modal>
 
         <!-- 数据表单 -->
@@ -182,11 +175,12 @@
                 width="60%"
                 >
             <Form :label-width="label_width" :model="dataForm"  ref="dataForm"  >
-                <Row v-for="(item,index) in fields_data" >
-                    <input type="hidden" v-model="dataForm[item.prop]" v-if=" item.data_type == 'hidden' ">
+                <template v-for="(item,index) in fields_data">
+                    <Row>
+                    <input type="hidden" v-model="dataForm[item.slot]" v-if=" item.data_type == 'hidden' ">
 
-                    <FormItem :label="item.label"  :prop="item.prop"  v-else=" item.data_form  && item.data_type != 'hidden' " >
-                        <Select  v-model="dataForm[item.prop]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                    <FormItem :label="item.title"  :prop="item.slot"  v-else=" item.data_form  && item.data_type != 'hidden' " >
+                        <Select  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                             <Option
                                     v-for="(option_item,option_index) in item.options"
                                     :key="option_index"
@@ -197,7 +191,7 @@
 
                         <DatePicker
                                 v-else-if=" item.data_type == 'date' "
-                                v-model="dataForm[item.prop]"
+                                v-model="dataForm[item.slot]"
                                 type="date"
                                 format="yyyy-MM-dd"
                         >
@@ -205,23 +199,24 @@
 
                         <DatePicker
                                 v-else-if=" item.data_type == 'datetime' "
-                                v-model="filterForm[item.prop]"
+                                v-model="filterForm[item.slot]"
                                 type="datetime"
                                 format="yyyy-MM-dd HH:mm:ss"
                         >
                         </DatePicker>
 
-                        <Input v-model="dataForm[item.prop]" :placeholder="'请输入' + item.label" v-else=" item.data_type == 'string' "></Input>
+                        <Input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></Input>
 
                     </FormItem>
 
 
 
                 </Row>
+                </template>
             </Form>
             <div slot="footer" class="dialog-footer">
-                <Button size="mini" type="default" @click="resetDataForm">重置</Button>
-                <Button type="primary" size="mini" @click="saveDataForm">保存</Button>
+                <Button  type="default" @click="resetDataForm">重置</Button>
+                <Button type="primary" @click="saveDataForm">保存</Button>
             </div>
 
         </Modal>
@@ -237,23 +232,29 @@
     import jsonExport from './jsonExport'
 
     /*
-    如果iview页面使用CDN外链接引入的话，则注释这段
+    如果iview页面使用CDN外链接引入的话，则注释这段*/
     import iView from 'iview'
-    import 'iview/dist/styles/iview.css'
+    import 'iview/dist/styles/iview.css';
     Vue.use(iView)
-    */
+
+    //数组移除元素
+    Array.prototype.remove = function(index)
+    {
+        if(isNaN(index)||index>this.length){return false;}
+        this.splice(index,1);
+    }
 
 
     export default {
         name:'vc-table',
-        props:['add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','height','operateWidth'],//头部按钮
+        props:['add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
         data() {
             return {
                 fields_data:[], //字段信息
                 //数据表单
                 dataForm:{},
                 dataForm_show:false, //数据表单显示
-                label_width:'30%', //表单文本宽度
+                label_width:120, //表单文本宽度
 
                 //筛选表单
                 filterForm: {},
@@ -371,10 +372,7 @@
                 //调用外部函数
                 callfun(index,row)
             },
-            //添加表单
-            add: function () {
 
-            },
             pivot: function () {
                 /*this.$exportExcel({
                     url: 'http://www.b2b.com/api/Table/index'
@@ -431,8 +429,8 @@
                 }
 
                 //主体字段
-                that.fields_data = data.data.fields
-                that.fields_data.forEach(function (val,key) {
+                data.data.fields.forEach(function (val,key) {
+
                     let filterName = val['prop']
                     if(val['filterName'] != '' &&  val['filterName'] != undefined){
                         filterName = val['filterName']
@@ -451,22 +449,45 @@
                         that.$set(that.dataForm,val['prop'],'')
                     }
 
-
-                    if(val['show'] == true){
-                        that.checkList.push(val['label'])
-                    }
-
                     let col = {
                         title: val['label'],
+                        //key: val['prop'],
                         slot: val['prop'],
                         fixed: val['fixed'],
-                        data_type: val['data_type'],
-                        options: val['options'],
-                        tooltip: val['tooltip'],
-                        show: val['show'],
                         sortable: val['sortable'],
-                        data_form: val['data_form'],
+                        renderHeader: (h,params) => {
+                            if(params.column.tips){
+                                return h('span',[
+                                    h('Tooltip',{props:{placement:"bottom"}},[
+                                        h('Icon',{props:{type:"md-help-circle"}}),
+                                        h('div',{slot:"content"},[
+                                            h('div',{style:{fontWeight:300},domProps:{innerHTML:params.column.tips}})
+                                        ])
+                                    ]),
+                                    h('span',{
+                                            props:{}, //属性
+                                            style:{ fontSize:"12px"}, //样式
+                                            on:{ //事件绑定
+                                                /*'on-click':(e)=>{
+                                                    console.log(e.target.value)
+                                                }*/
+                                            },
+                                            domProps:{innerHTML:params.column.title}  //支持HTML
+                                        }
+                                    )
+                                ])
+                            }else{
+                                return h('span',{style:{ fontSize:"12px"}},params.column.title)
+                            }
+
+                        },
+
+                        data_type: val['data_type'],
+                        width: val['width'],
+                        tips: val['tooltip'],
+                        options: val['options'],
                         filter: val['filter']
+
                     }
 
                     if(that.checkbox == true){
@@ -475,7 +496,11 @@
 
                     col['_disabled'] = val['disabled'] == undefined ? false : val['disabled'];
 
-                    that.columns.push(col)
+                    that.fields_data.push(col)
+                    if(val['show'] == true){
+                        that.checkList.push(val['prop'])
+                        that.columns.push(col)
+                    }
                 })
 
                 //操作列
@@ -484,10 +509,13 @@
                         title: '操作',
                         slot: 'action',
                         width: that.operateWidth,
-                        align: 'center'
+                        align: 'center',
+                        fixed:'right',
+                        renderHeader:(h,params) => {
+                            return h('span',{style:{ fontSize:"12px"}},params.column.title)
+                        }
                     })
                 }
-
 
             },
             //加载表格字段信息
@@ -510,8 +538,7 @@
                     let item = []
                     //将下载的字段名替换成表格的表头名称
                     that.columns.forEach(function (v,k) {
-                        //只下载显示的列
-                        if(v['show']){
+                        if(v['slot'] != 'action' && v['slot'] != undefined){
                             //过滤HTML标签
                             let label = v['title'].replace(/<[^>]*>/g,'')
                             let value = val[v['slot']]
@@ -563,27 +590,38 @@
                     this.showTotal = false
                     this.showElevator = false
                     this.showSizer = false
-                    this.label_width = '30%'
+                    this.label_width = 120
                 }else{
                     this.showTotal = true
                     this.showElevator = true
                     this.showSizer = true
-                    this.label_width = '20%'
+                    this.label_width = 80
                 }
 
                 this.filter_form_width = document.body.offsetWidth * 0.8
             },
             //列的显示与隐藏
             fieldChange(check_val){
-                this.columns.forEach(function (item,index) {
-                    if(check_val == '' || check_val == null || check_val.length == 0 || check_val == undefined){
-                        item.show = false
+                let that = this
+                //将已选择的加入显示列
+                that.fields_data.forEach(function (val,k) {
+                    if(check_val.indexOf(val.slot) != -1){
+                        console.log(val.slot)
+                        let flag = true
+                        //检测是否已经存在
+                        that.columns.forEach(function (val2,k2) {
+                            if(val.slot == val2.slot){
+                                flag = false
+                            }
+                        })
+                        if(flag == true)  that.columns.push(val)
                     }else{
-                        if(check_val.indexOf(item.label) != -1){
-                            item.show = true
-                        }else{
-                            item.show = false
-                        }
+                        //检测是否已经存在
+                        that.columns.forEach(function (val2,k2) {
+                            if(val.slot == val2.slot){
+                                that.columns.splice(k2,1)
+                            }
+                        })
                     }
                 })
             },
@@ -626,14 +664,17 @@
 </script>
 
 <style scoped="true">
-
-
-
+    .filter-form-content{ max-height:460px; display: block; overflow-y: auto;}
+    .dropdown-content{ max-height: 260px; padding: 10px; overflow-y: auto; max-width: 500px; overflow-x: auto }
+    .ivu-col{ margin-bottom: 10px;}
+    .table-tools .ivu-btn{ margin-left: -1px !important;  border-radius: 0px;}
+    .table-tools .ivu-dropdown:last-child .ivu-btn{ border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important;  }
+    .pagination{ margin-top: 10px;}
 
 </style>
 
 <style>
-
-
+    .table-tools .ivu-input{ border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+    .ivu-table-cell{ padding-left: 10px !important; padding-right: 10px !important;}
 </style>
 

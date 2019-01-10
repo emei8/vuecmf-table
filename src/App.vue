@@ -1,15 +1,17 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :add="true" :edit="true" :del="true" :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :operate-width="200"></vc-table>
-
+    <vc-table :add="true" :edit="true" :del="true" :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  width="800"  height="450" :operate-width="150"></vc-table>
   </div>
 </template>
 
 <script>
 
+import VcTable from "./lib/vuecmf-table/table.vue";
+
 export default {
-  name: 'app',
+    components: {VcTable},
+    name: 'app',
   data () {
     return {
         selectable: function (row, index) {
@@ -109,29 +111,7 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
 
-}
 
-h1, h2 {
-  font-weight: normal;
-}
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
 </style>
