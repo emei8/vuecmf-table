@@ -1,110 +1,113 @@
 <template>
     <div :style="'width:'+ width + 'px'">
-        <Row :gutter="10" >
-            <Col  :xs="24" :sm="8" :md="8" :lg="8"   class="btn-group">
-                <Button v-if="add" @click="addForm"  type="primary"><Icon type="md-add-circle" /> 添加</Button>
-                <ButtonGroup v-if="headerAction">
+        <i-row :gutter="10" v-if=" showToolbar !== false ">
+            <i-col  :xs="24" :sm="8" :md="8" :lg="8"   class="btn-group">
+                <i-button v-if="add" @click="addForm"  type="primary"><i-icon type="md-add-circle" /> 添加</i-button>
+                <i-button-group v-if="headerAction">
                     <template v-for="(item, index) in headerAction">
-                        <Button   :type="item.type" @click="fun(item.event)"  :title="item.title"><Icon :type="item.icon" /> {{ item.label }}</Button>
+                        <i-button   :type="item.type" @click="fun(item.event)"  :title="item.title"><i-icon :type="item.icon" /> {{ item.label }}</i-button>
                     </template>
-                </ButtonGroup>
-            </Col>
-            <Col :xs="24" :sm="16" :md="16" :lg="16"  class="table-tools">
-                <Row type="flex" justify="end">
-                    <div>
-                        <Input
+                </i-button-group>
+            </i-col>
+            <i-col :xs="24" :sm="16" :md="16" :lg="16"  class="table-tools">
+                <i-row type="flex" justify="end">
+                    <div class="search-input">
+                        <i-input
                                 placeholder="请输入内容"
                                 v-model="keywords"
                                 @on-change="search"
                                 clearable>
-                        </Input>
+                        </i-input>
                     </div>
 
-                    <Button type="default"  title="刷新" @click="refresh"><Icon type="md-refresh" /></Button>
-                    <Poptip
+                    <i-button type="default"  title="刷新" @click="refresh"><i-icon type="md-refresh" /></i-button>
+                    <i-poptip
                             placement="bottom-end"
                             :width="filter_form_width"
+                            v-model="filter_show"
                             >
-                        <Button type="default"  title="筛选" ><Icon type="ios-funnel" /></Button>
+                        <i-button type="default"  title="筛选" ><i-icon type="ios-funnel" /></i-button>
                         <div slot="content">
-                            <Form :inline="true" :model="filterForm"  ref="filterForm"  >
+                            <i-form :inline="true" :model="filterForm"  ref="filterForm">
                                 <div class="filter-form-content">
                                     <template v-for="(item,index) in fields_data" >
-                                        <Col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
-                                        <FormItem :label="item.title"  :prop="item.slot">
-                                            <Input v-model="filterForm[item.slot]" clearable  :placeholder="'请输入' + item.title" v-if=" item.data_type == 'string' "></Input>
-                                            <Select  v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
-                                                <Option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</Option>
-                                            </Select>
+                                        <i-col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
+                                        <i-form-item :label="item.title"  :prop="item.slot">
+                                            <i-input v-model="filterForm[item.slot]" clearable  :placeholder="'请输入' + item.title" v-if=" item.data_type == 'string' "></i-input>
+                                            <i-select  v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                                                <i-option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</i-option>
+                                            </i-select>
 
-                                            <DatePicker
+                                            <i-date-picker
                                                     v-if=" item.data_type == 'date' "
                                                     v-model="filterForm[item.slot]"
                                                     type="daterange"
                                                     format="yyyy-MM-dd"
+                                                    placeholder=""
                                             >
-                                            </DatePicker>
+                                            </i-date-picker>
 
-                                            <DatePicker
+                                            <i-date-picker
                                                     v-if=" item.data_type == 'datetime' "
                                                     v-model="filterForm[item.slot]"
                                                     type="datetimerange"
                                                     format="yyyy-MM-dd HH:mm:ss"
+                                                    placeholder=""
                                             >
-                                            </DatePicker>
+                                            </i-date-picker>
 
-                                        </FormItem>
+                                        </i-form-item>
 
-                                        </Col>
+                                        </i-col>
                                     </template>
                                 </div>
-                                <Col>
+                                <i-col>
                                 <div style="text-align: right; margin: 0">
-                                    <Button  type="default" @click="restFilter">重置</Button>
-                                    <Button type="primary"  @click="filter">确定</Button>
+                                    <i-button  type="default" @click="restFilter">重置</i-button>
+                                    <i-button type="primary"  @click="filter">确定</i-button>
                                 </div>
-                                </Col>
-                            </Form>
+                                </i-col>
+                            </i-form>
                         </div>
-                    </Poptip>
+                    </i-poptip>
 
                     <!--<el-button type="default" size="small" title="日历"><i class="fa fa-calendar"></i></el-button>
                     <el-button type="default" size="small" title="透视" @click="pivot"><i class="fa fa-table"></i></el-button>
                     <el-button type="default" size="small" title="图表"><i class="fa fa-bar-chart"></i></el-button>
                     <el-button type="default" size="small" title="看板"><i class="fa fa-th-large"></i></el-button>-->
 
-                    <Poptip placement="bottom-end" :width="200" >
-                        <Button type="default"  title="列">
-                            <Icon type="ios-apps" />
-                        </Button>
+                    <i-poptip placement="bottom-end" :width="200" >
+                        <i-button type="default"  title="列">
+                            <i-icon type="ios-apps" />
+                        </i-button>
                         <div slot="content">
-                            <CheckboxGroup v-model="checkList" class="dropdown-content" @on-change="fieldChange">
+                            <i-checkbox-group v-model="checkList" class="dropdown-content" @on-change="fieldChange">
                                 <template v-for="(item,index) in fields_data">
-                                    <Checkbox  :label="item.slot" >
+                                    <i-checkbox  :label="item.slot" >
                                         <span v-html="item.title"></span>
-                                    </Checkbox><br>
+                                    </i-checkbox><br>
                                 </template>
-                            </CheckboxGroup >
+                            </i-checkbox-group>
                         </div>
-                    </Poptip>
+                    </i-poptip>
 
-                    <Dropdown trigger="click" @on-click="downloadExport" :transfer="true"  placement="bottom-end">
-                        <Button type="default"  title="导出">
-                            <Icon type="md-download" />
-                        </Button>
-                        <Dropdown-menu slot="list">
-                            <Dropdown-item name="csv">CSV</Dropdown-item>
-                            <Dropdown-item name="xlsx">MS-Excel</Dropdown-item>
-                            <Dropdown-item name="xml">XML</Dropdown-item>
-                        </Dropdown-menu>
-                    </Dropdown>
+                    <i-dropdown trigger="click" @on-click="downloadExport" :transfer="true"  placement="bottom-end">
+                        <i-button type="default"  title="导出">
+                            <i-icon type="md-download" />
+                        </i-button>
+                        <i-dropdown-menu slot="list">
+                            <i-dropdown-item name="csv">CSV</i-dropdown-item>
+                            <i-dropdown-item name="xlsx">MS-Excel</i-dropdown-item>
+                            <i-dropdown-item name="xml">XML</i-dropdown-item>
+                        </i-dropdown-menu>
+                    </i-dropdown>
 
 
-                </Row>
-            </Col>
-        </Row>
+                </i-row>
+            </i-col>
+        </i-row>
 
-        <Table
+        <i-table
                 :data="tableData"
                 :columns="columns"
                 border
@@ -122,12 +125,28 @@
             </template>
 
             <!-- 操作列 -->
-            <template slot-scope="{ row, index }" slot="action" v-if="rowAction">
-                <span v-for="(item,k) in rowAction">
+            <template slot-scope="{ row, index }" slot="action" >
+                <template v-if="edit">
+                    <i-button style="margin-right: 5px"
+                              type="success"
+                              size="small"
+                              @click.native.prevent="editForm(index, row)" ><Icon type="ios-create" /> 编辑</i-button>
+                </template>
+                <template v-if="del">
+                    <i-button style="margin-right: 5px"
+                              type="error"
+                              size="small"
+                              @click.native.prevent="delForm(del, row)" ><Icon type="md-trash" /> 删除</i-button>
+                </template>
+
+                <!-- 自定义行事件 -->
+                <template v-if="rowAction">
+                    <span v-for="(item,k) in rowAction">
                         <template v-if=" item.callback == undefined || item.callback(index, row) == false || row.callback_result == false ">
-                            <Button style="margin-right: 5px"
+                            <i-button style="margin-right: 5px"
                                     :type="item.type"
-                                    @click.native.prevent="rowFun(item.event,index, row)" ><Icon :type="item.icon" /> {{item.title}}</Button>
+                                      size="small"
+                                    @click.native.prevent="rowFun(item.event,index, row)" ><i-icon :type="item.icon" /> {{item.title}}</i-button>
                         </template>
                         <template v-else>
 
@@ -135,12 +154,13 @@
                         </template>
 
                     </span>
+                </template>
             </template>
 
-        </Table>
+        </i-table>
 
         <div class="pagination">
-            <Page
+            <i-page
                     @on-page-size-change="handleSizeChange"
                     @on-change="handleCurrentChange"
                     :current="currentPage"
@@ -151,75 +171,77 @@
                     :show-elevator="showElevator"
                     :show-sizer="showSizer"
                     >
-            </Page>
+            </i-page>
         </div>
 
 
-        <Modal
+        <i-modal
                 title="正在下载数据，请稍后..."
                 v-model="downloadTips"
                 width="30%"
                 :closable="false"
                 >
             <span class="ivu-tag-red">{{downloadError}}</span>
-            <Progress  :stroke-width="18" :percent="percentage"></Progress >
+            <i-progress  :stroke-width="18" :percent="percentage"></i-progress>
             <div slot="footer">
 
             </div>
-        </Modal>
+        </i-modal>
 
         <!-- 数据表单 -->
-        <Modal
+        <i-modal
                 title="添加"
                 v-model="dataForm_show"
                 width="60%"
                 >
-            <Form :label-width="label_width" :model="dataForm"  ref="dataForm"  >
+            <i-form :label-width="label_width" :model="dataForm"  ref="dataForm"  :rules="ruleValidate">
                 <template v-for="(item,index) in fields_data">
-                    <Row>
+                    <i-row>
                     <input type="hidden" v-model="dataForm[item.slot]" v-if=" item.data_type == 'hidden' ">
 
-                    <FormItem :label="item.title"  :prop="item.slot"  v-else=" item.data_form  && item.data_type != 'hidden' " >
-                        <Select  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
-                            <Option
+                    <i-form-item :label="item.title"  :prop="item.slot"  v-else=" item.data_form  && item.data_type != 'hidden' " >
+                        <i-select  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                            <i-option
                                     v-for="(option_item,option_index) in item.options"
                                     :key="option_index"
                                     :value="option_index">
                                 {{ option_item }}
-                            </Option>
-                        </Select>
+                            </i-option>
+                        </i-select>
 
-                        <DatePicker
+                        <i-date-picker
                                 v-else-if=" item.data_type == 'date' "
                                 v-model="dataForm[item.slot]"
                                 type="date"
                                 format="yyyy-MM-dd"
+                                placeholder=""
                         >
-                        </DatePicker>
+                        </i-date-picker>
 
-                        <DatePicker
+                        <i-date-picker
                                 v-else-if=" item.data_type == 'datetime' "
-                                v-model="filterForm[item.slot]"
+                                v-model="dataForm[item.slot]"
                                 type="datetime"
                                 format="yyyy-MM-dd HH:mm:ss"
+                                placeholder=""
                         >
-                        </DatePicker>
+                        </i-date-picker>
 
-                        <Input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></Input>
+                        <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
 
-                    </FormItem>
+                    </i-form-item>
 
 
 
-                </Row>
+                </i-row>
                 </template>
-            </Form>
+            </i-form>
             <div slot="footer" class="dialog-footer">
-                <Button  type="default" @click="resetDataForm">重置</Button>
-                <Button type="primary" @click="saveDataForm">保存</Button>
+                <i-button  type="default" @click="resetDataForm">重置</i-button>
+                <i-button type="primary" @click="saveDataForm(saveFun)">保存</i-button>
             </div>
 
-        </Modal>
+        </i-modal>
 
 
     </div>
@@ -237,24 +259,19 @@
     import 'iview/dist/styles/iview.css';
     Vue.use(iView)
 
-    //数组移除元素
-    Array.prototype.remove = function(index)
-    {
-        if(isNaN(index)||index>this.length){return false;}
-        this.splice(index,1);
-    }
-
-
     export default {
         name:'vc-table',
-        props:['add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
+        props:['showToolbar','add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
         data() {
             return {
-                fields_data:[], //字段信息
                 //数据表单
                 dataForm:{},
                 dataForm_show:false, //数据表单显示
                 label_width:120, //表单文本宽度
+                ruleValidate:{}, //表单数据验证
+                saveFun: function () {
+
+                },
 
                 //筛选表单
                 filterForm: {},
@@ -262,8 +279,6 @@
                 filter_form_width:0,
                 keywords: '',
                 keywords_field:[], //可模糊搜索字段
-
-                checkList: [], //列显示
 
                 //分页设置
                 showTotal:true, //显示总数
@@ -282,13 +297,17 @@
                 loading:false,
                 downloadCurrentPage:0,
 
+                //表格相关
                 tableData: [],
+                fields_data:[], //字段信息
+                checkList: [], //可显示的列属性
                 total: 0,
                 orderField : '',
                 orderSort: 'desc',
-                columns : [],
+                columns : [], //显示的列信息
                 selectRows : [], //已选择行数据
-                currentSelectRow : {} //当前选择行数据
+                currentSelectRow : {}, //当前选择行数据
+
             }
         },
         mounted(){
@@ -319,16 +338,27 @@
         methods: {
             //添加表单
             addForm: function () {
+                //this.dataForm = []
                 this.dataForm_show = true
                 //this.$refs['dataForm'].resetFields()
+                this.saveFun = this.add
+            },
+            editForm: function (index, row) {
+                this.dataForm = row
+                this.dataForm_show = true
+                this.saveFun = this.edit
+            },
+            delForm(callback,row){
+                callback(row)
             },
             //重置数据表单
             resetDataForm: function () {
                 this.$refs['dataForm'].resetFields()
             },
             //保存数据表单
-            saveDataForm: function () {
+            saveDataForm: function (callback) {
                 this.dataForm_show = false
+                callback(this.dataForm)
             },
             post: function (url,data) {
                 return axios.post(url, data)
@@ -336,6 +366,7 @@
             get: function (url) {
                 return axios.get(url)
             },
+            //格式化行数据
             formatter:function (row, field_name, data_type, options) {
                 let cellValue = row[field_name]
 
@@ -353,17 +384,21 @@
 
                 return cellValue
             },
+            //当前选择行数据
             currentSelect:function (selection, row) {
                 this.currentSelectRow = row
             },
+            //获取所选行数据
             getSelectRows:function (selection) {
                 this.selectRows = selection
 
             },
+            //表格头部工具条左边按钮组事件回调
             fun: function (callfun) {
                 //调用外部函数
                 callfun(this.selectRows)
             },
+            //操作列事件回调
             rowFun: function (callfun,index,row) {
                 //调用外部函数
                 callfun(index,row)
@@ -428,6 +463,7 @@
                     })
                 }
 
+
                 //主体字段
                 data.data.fields.forEach(function (val,key) {
 
@@ -447,6 +483,10 @@
 
                     if(val['data_form'] == true){
                         that.$set(that.dataForm,val['prop'],'')
+                        if(val['validate'] != undefined && val['validate'].length != undefined){
+                            that.$set(that.ruleValidate,val['prop'],val['validate'])
+                        }
+
                     }
 
                     let col = {
@@ -477,7 +517,8 @@
                                     )
                                 ])
                             }else{
-                                return h('span',{style:{ fontSize:"12px"}},params.column.title)
+                               // return h('span',{style:{ fontSize:"12px"}},params.column.title)
+                                return h('span',{style:{ fontSize:"12px"},domProps:{innerHTML:params.column.title}})
                             }
 
                         },
@@ -667,14 +708,17 @@
     .filter-form-content{ max-height:460px; display: block; overflow-y: auto;}
     .dropdown-content{ max-height: 260px; padding: 10px; overflow-y: auto; max-width: 500px; overflow-x: auto }
     .ivu-col{ margin-bottom: 10px;}
+    .filter-form-content .ivu-col{ margin-bottom: 0;}
+    .filter-form-content .ivu-form-item{ margin-bottom: 10px;}
     .table-tools .ivu-btn{ margin-left: -1px !important;  border-radius: 0px;}
     .table-tools .ivu-dropdown:last-child .ivu-btn{ border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important;  }
     .pagination{ margin-top: 10px;}
+    .table-tools .ivu-btn-default:hover{ border-color: #dcdee2}
 
 </style>
 
 <style>
-    .table-tools .ivu-input{ border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+    .table-tools .search-input .ivu-input{ border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
     .ivu-table-cell{ padding-left: 10px !important; padding-right: 10px !important;}
 </style>
 

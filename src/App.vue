@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :add="true" :edit="true" :del="true" :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  width="800"  height="450" :operate-width="150"></vc-table>
+    <vc-table :add="save" :edit="edit" :del="del" :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :width="width"  :height="height" :operate-width="120"  :show-toolbar="true" ></vc-table>
   </div>
 </template>
 
@@ -10,10 +10,13 @@
 import VcTable from "./lib/vuecmf-table/table.vue";
 
 export default {
-    components: {VcTable},
-    name: 'app',
+  components: {VcTable},
+  name: 'app',
   data () {
+    let that = this
     return {
+        height: 300,
+        width: 800,
         selectable: function (row, index) {
             if(index % 2 == 0){
                 return false;  //不允许勾选
@@ -47,7 +50,7 @@ export default {
         cellEvent:
             function (currentList) { //currentList 为当前页列表数据
                 console.log('cellevent')
-                console.log(currentList)
+                //console.log(currentList)
             }
         ,
         rowAction:[
@@ -69,6 +72,7 @@ export default {
             {
                 event: function (index,row) {
                     console.log(index,row)
+                    that.test()
                 },
                 title: '删除',
                 type: 'primary',
@@ -80,8 +84,31 @@ export default {
         ]
     }
   },
+    methods:{
+        save: function (form_data) {
+            console.log(form_data)
+            console.log('addddddd')
+        },
+        edit:function (form_data) {
+            console.log(form_data)
+            console.log('editdddddd')
+        },
+        del: function (form_data) {
+            console.log(form_data)
+            console.log('deldddddd')
+        },
+        test:function () {
+            console.log('测试事件')
+        }
+    },
   mounted: function () {
       let that = this
+
+      let current_width = document.documentElement.clientWidth - 10
+      let current_height = document.documentElement.clientHeight - 150
+      that.height = current_height
+      that.width = current_width
+
       that.rowAction[1].callback = function (index,row) {
 
           //that.$set(that.$refs.vcTable.tableData[index],'callback_result','未关注');  //替换默认操作

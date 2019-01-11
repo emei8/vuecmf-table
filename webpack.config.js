@@ -18,6 +18,12 @@ module.exports = {
                 options: {
 
                 }
+            },
+            {
+                loader: 'iview-loader',
+                options: {
+                    prefix: true
+                }
             }
         ]
       },
@@ -75,7 +81,7 @@ if (process.env.NODE_ENV === 'production') {
     //添加 externals来告诉webpack我们这些第三方库不需要打包, key = 第三方库名， value = 项目中定义的别名
     module.exports.externals = {
         'vue': 'Vue',
-        'element-ui': 'ElementUI',
+        'iview': 'iView',
         'xlsx': 'XLSX'
     }
 
