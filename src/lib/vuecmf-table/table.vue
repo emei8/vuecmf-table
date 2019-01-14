@@ -34,7 +34,7 @@
                                         <i-col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
                                         <i-form-item :label="item.title"  :prop="item.slot">
                                             <i-input v-model="filterForm[item.slot]" clearable  :placeholder="'请输入' + item.title" v-if=" item.data_type == 'string' "></i-input>
-                                            <i-select  v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                                            <i-select :transfer="true" v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                                                 <i-option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</i-option>
                                             </i-select>
 
@@ -44,6 +44,7 @@
                                                     type="daterange"
                                                     format="yyyy-MM-dd"
                                                     placeholder=""
+                                                    :transfer="true"
                                             >
                                             </i-date-picker>
 
@@ -53,6 +54,7 @@
                                                     type="datetimerange"
                                                     format="yyyy-MM-dd HH:mm:ss"
                                                     placeholder=""
+                                                    :transfer="true"
                                             >
                                             </i-date-picker>
 
