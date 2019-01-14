@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 module.exports = {
   module: {
@@ -63,12 +64,16 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: '#eval-source-map',
+  plugins:[
+      new VueLoaderPlugin()
+  ]
 }
 
 
 if (process.env.NODE_ENV === 'production') {
     //发布插件使用
+    module.exports.mode = 'production'
     module.exports.entry = ['babel-polyfill','./src/lib/vuecmf-table/index.js']  //打包操作的入口文件
     module.exports.output = {
         path: path.resolve(__dirname, './dist'),
@@ -111,6 +116,7 @@ if (process.env.NODE_ENV === 'production') {
 
 }else{
     //测试插件使用
+    module.exports.mode = 'development'
     module.exports.entry = ['babel-polyfill','./src/main.js']
     module.exports.output = {
         path: path.resolve(__dirname, './dist'),

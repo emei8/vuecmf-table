@@ -193,6 +193,7 @@
                 title="添加"
                 v-model="dataForm_show"
                 width="60%"
+                fullscreen
                 >
             <i-form :label-width="label_width" :model="dataForm"  ref="dataForm"  :rules="ruleValidate">
                 <template v-for="(item,index) in fields_data">
@@ -252,6 +253,7 @@
     import Vue from 'vue'
     import axios from 'axios'
     import jsonExport from './jsonExport'
+    import expandRow from './table-expand.vue'
 
     /*
     如果iview页面使用CDN外链接引入的话，则注释这段*/
@@ -261,7 +263,7 @@
 
     export default {
         name:'vc-table',
-        props:['showToolbar','add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
+        props:['expand','showToolbar','add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
         data() {
             return {
                 //数据表单
@@ -462,6 +464,22 @@
                         fixed: true
                     })
                 }
+
+                //展开功能
+                if(that.expand){
+                    that.columns.push({
+                        type: 'expand',
+                        width: 50,
+                        render: (h, params) => {
+                            return h(expandRow, {
+                                props: {
+                                    row: params.row.expandData
+                                }
+                            },'222')
+                        }
+                    })
+                }
+
 
 
                 //主体字段

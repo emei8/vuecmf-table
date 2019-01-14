@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :add="save" :edit="edit" :del="del" :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :width="width"  :height="height" :operate-width="120"  :show-toolbar="true" ></vc-table>
+    <vc-table :add="save" :edit="edit" :del="del" :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :expand="true"  :width="width"  :height="height" :operate-width="120"  :show-toolbar="true" ></vc-table>
   </div>
 </template>
 
