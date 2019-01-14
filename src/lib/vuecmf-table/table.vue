@@ -516,7 +516,7 @@
                         renderHeader: (h,params) => {
                             if(params.column.tips){
                                 return h('span',[
-                                    h('Tooltip',{props:{placement:"bottom"}},[
+                                    h('Tooltip',{props:{placement:"bottom",maxWidth:240}},[
                                         h('Icon',{props:{type:"md-help-circle"}}),
                                         h('div',{slot:"content"},[
                                             h('div',{style:{fontWeight:300},domProps:{innerHTML:params.column.tips}})
