@@ -71,7 +71,20 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
             "currency": "1",
             "quantity": "100",
             "unit_price": "85.0000",
-            "status": "10"
+            "status": "10",
+            "expandData":{
+                "type":"table",
+                "tableFields":[
+                    {"label":"需求单号","prop":"order_sn"},
+                    {"label":"调拨类型","prop":"type"},
+                    {"label":"计划数量","prop":"num"}
+                ],
+                "tableList":[
+                    {"order_sn":"dbd903452","type":"POP","num":300},
+                    {"order_sn":"dbd123123","type":"POP","num":400},
+                    {"order_sn":"dbd144155","type":"POP","num":580}
+                ]
+            }
         },
         {
             "id": "62",
@@ -83,7 +96,20 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
             "currency": "4",
             "quantity": "200",
             "unit_price": "33.0000",
-            "status": "10"
+            "status": "10",
+            "expandData":{
+                "type":"table",
+                "tableFields":[
+                    {"label":"需求单号","prop":"order_sn"},
+                    {"label":"调拨类型","prop":"type"},
+                    {"label":"计划数量","prop":"num"}
+                ],
+                "tableList":[
+                    {"order_sn":"dbd903452","type":"POP","num":300},
+                    {"order_sn":"dbd123123","type":"POP","num":400},
+                    {"order_sn":"dbd144155","type":"POP","num":580}
+                ]
+            }
         },
         {
             "id": "60",
@@ -95,7 +121,20 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
             "currency": "3",
             "quantity": "300",
             "unit_price": "50.0000",
-            "status": "10"
+            "status": "10",
+            "expandData":{
+                "type":"table",
+                "tableFields":[
+                    {"label":"需求单号","prop":"order_sn"},
+                    {"label":"调拨类型","prop":"type"},
+                    {"label":"计划数量","prop":"num"}
+                ],
+                "tableList":[
+                    {"order_sn":"dbd903452","type":"POP","num":300},
+                    {"order_sn":"dbd123123","type":"POP","num":400},
+                    {"order_sn":"dbd144155","type":"POP","num":580}
+                ]
+            }
         }      
     ]
 }
