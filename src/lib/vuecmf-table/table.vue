@@ -685,9 +685,14 @@
                 })
             },
             //列排序
-            sort(column,key,order){
-                this.orderField = column.key
-                this.orderSort = order
+            sort(column){
+                if(column.key == undefined){
+                    this.orderField = column.column.slot
+                }else{
+                    this.orderField = column.key
+                }
+
+                this.orderSort = column.order
                 this.refresh()
             },
             //拉取列表数据的回调
