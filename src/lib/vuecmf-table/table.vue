@@ -3,11 +3,14 @@
         <i-row :gutter="10" v-if=" showToolbar !== false ">
             <i-col  :xs="24" :sm="8" :md="8" :lg="8"   class="btn-group">
                 <i-button v-if="add" @click="addForm"  type="primary"><i-icon type="md-add-circle" /> 添加</i-button>
+
                 <i-button-group v-if="headerAction">
                     <template v-for="(item, index) in headerAction">
                         <i-button   :type="item.type" @click="fun(item.event)"  :title="item.title"><i-icon :type="item.icon" /> {{ item.label }}</i-button>
                     </template>
                 </i-button-group>
+                <slot name="headerAction"></slot>
+
             </i-col>
             <i-col :xs="24" :sm="16" :md="16" :lg="16"  class="table-tools">
                 <i-row type="flex" justify="end">
@@ -273,9 +276,11 @@
 
     export default {
         name:'vc-table',
-        props:['expand','showToolbar','add','edit','del','selectable','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
+        props:['expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
         data() {
             return {
+                radioVal:'',
+
                 //数据表单
                 dataForm:{},
                 dataForm_show:false, //数据表单显示
@@ -418,7 +423,7 @@
             //表格头部工具条左边按钮组事件回调
             fun: function (callfun) {
                 //调用外部函数
-                callfun(this.selectRows)
+                callfun(value)
             },
             //操作列事件回调
             rowFun: function (callfun,index,row) {

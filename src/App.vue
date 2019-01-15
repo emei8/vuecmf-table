@@ -1,7 +1,16 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :add="save" :edit="edit" :del="del" :selectable="selectable" :checkbox="true"  ref="vcTable"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :expand="true"  :width="width"  :height="height" :operate-width="120"  :show-toolbar="true" ></vc-table>
+    <vc-table :add="save" :edit="edit" :del="del"  :checkbox="true"  ref="vcTable"  header-component="radio"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :expand="true"  :width="width"  :height="height" :operate-width="120"  :show-toolbar="true" >
+      <template slot="headerAction">
+        <i-radio-group v-model="animal">
+          <i-radio label="金斑蝶"></i-radio>
+          <i-radio label="爪哇犀牛"></i-radio>
+          <i-radio label="印度黑羚"></i-radio>
+        </i-radio-group>
+      </template>
+
+    </vc-table>
   </div>
 </template>
 
@@ -9,22 +18,20 @@
 
 import VcTable from "./lib/vuecmf-table/table.vue";
 
+import Vue from 'vue'
+import iView from 'iview'
+import 'iview/dist/styles/iview.css';
+Vue.use(iView)
+
 export default {
   components: {VcTable},
   name: 'app',
   data () {
     let that = this
     return {
+        animal:'金斑蝶',
         height: 300,
         width: 800,
-        selectable: function (row, index) {
-            if(index % 2 == 0){
-                return false;  //不允许勾选
-            }else{
-                return true; //可以勾选
-            }
-
-        },
         headerAction:[
             {
                 event: function (selectRows) {
@@ -49,8 +56,10 @@ export default {
         //针对自定义单元格内容的事件处理， 可借助jquery进行DOM操作和事件处理
         cellEvent:
             function (currentList) { //currentList 为当前页列表数据
-                console.log('cellevent')
                 //console.log(currentList)
+                currentList.forEach(function (val,index) {
+                    console.log(index)
+                })
             }
         ,
         rowAction:[
