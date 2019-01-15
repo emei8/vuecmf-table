@@ -34,7 +34,7 @@
                                         <i-col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
                                         <i-form-item :label="item.title"  :prop="item.slot">
                                             <i-input v-model="filterForm[item.slot]" clearable  :placeholder="'请输入' + item.title" v-if=" item.data_type == 'string' "></i-input>
-                                            <i-select :transfer="true" v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                                            <i-select :transfer="true"  @on-change="filter_show = true"  v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                                                 <i-option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</i-option>
                                             </i-select>
 
@@ -45,6 +45,8 @@
                                                     format="yyyy-MM-dd"
                                                     placeholder=""
                                                     :transfer="true"
+                                                    @on-change="(datetime) =>{ changeDatetime(datetime,'filter',item.slot)}"
+                                                    @on-open-change="filter_show = true"
                                             >
                                             </i-date-picker>
 
@@ -55,6 +57,8 @@
                                                     format="yyyy-MM-dd HH:mm:ss"
                                                     placeholder=""
                                                     :transfer="true"
+                                                    @on-change="(datetime) =>{ changeDatetime(datetime,'filter',item.slot)}"
+                                                    @on-open-change="filter_show = true"
                                             >
                                             </i-date-picker>
 
@@ -203,7 +207,7 @@
                     <input type="hidden" v-model="dataForm[item.slot]" v-if=" item.data_type == 'hidden' ">
 
                     <i-form-item :label="item.title"  :prop="item.slot"  v-else=" item.data_form  && item.data_type != 'hidden' " >
-                        <i-select  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                        <i-select @on-change="dataForm_show = true"  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                             <i-option
                                     v-for="(option_item,option_index) in item.options"
                                     :key="option_index"
@@ -218,6 +222,8 @@
                                 type="date"
                                 format="yyyy-MM-dd"
                                 placeholder=""
+                                @on-change="(datetime) =>{ changeDatetime(datetime,'data',item.slot)}"
+                                @on-open-change="dataForm_show = true"
                         >
                         </i-date-picker>
 
@@ -227,6 +233,8 @@
                                 type="datetime"
                                 format="yyyy-MM-dd HH:mm:ss"
                                 placeholder=""
+                                @on-change="(datetime) =>{ changeDatetime(datetime,'data',item.slot)}"
+                                @on-open-change="dataForm_show = true"
                         >
                         </i-date-picker>
 
@@ -340,6 +348,16 @@
             }
         },
         methods: {
+            //处理日历数据
+            changeDatetime: function (datetime, formType ,prop) {
+                if(formType == 'filter'){
+                    this.filterForm[prop] = datetime
+                    this.filter_show = true
+                }else{
+                    this.dataForm[prop] = datetime
+                    this.dataForm_show = true
+                }
+            },
             //添加表单
             addForm: function () {
                 //this.dataForm = []
@@ -420,24 +438,25 @@
 
             //拉取数据
             pullData: function (currentPage,callback,action) {
-                let url = this.server
+                let that = this
+                let url = that.server
                 if(action != undefined && action == 'getField'){  //拉取表格字段信息
-                    this.post(url,{
+                    that.post(url,{
                         action: action
                     }).then(function (data) {
                         callback(data)
                     })
                 }else{  //拉取列表数据
-                    this.post(url + '?'+ this.page + '=' + currentPage,{
-                        pageSize: this.pageSize,
-                        orderField: this.orderField,
-                        orderSort: this.orderSort,
-                        keywords: this.keywords,
-                        keywords_field: this.keywords_field,
-                        filter: this.filterForm,
+                    that.post(url + '?'+ that.page + '=' + currentPage,{
+                        pageSize: that.pageSize,
+                        orderField: that.orderField,
+                        orderSort: that.orderSort,
+                        keywords: that.keywords,
+                        keywords_field: that.keywords_field,
+                        filter: that.filterForm,
                         //兼容后端只接收offset 和 limit 参数分页处理
-                        offset: this.pageSize * (currentPage - 1),
-                        limit: this.pageSize
+                        offset: that.pageSize * (currentPage - 1),
+                        limit: that.pageSize
                     }).then(function (data) {
                         callback(data)
                     })
@@ -477,16 +496,14 @@
                                 props: {
                                     row: params.row.expandData
                                 }
-                            },'222')
+                            })
                         }
                     })
                 }
 
 
-
                 //主体字段
                 data.data.fields.forEach(function (val,key) {
-
                     let filterName = val['prop']
                     if(val['filterName'] != '' &&  val['filterName'] != undefined){
                         filterName = val['filterName']
