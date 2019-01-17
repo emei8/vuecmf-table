@@ -18,10 +18,13 @@
             let columns = []
 
             this.row.tableFields.forEach(function (val,index) {
-                columns.push({
+                let col = {
                     'title': val['label'],
                     'key': val['prop']
-                })
+                }
+
+                if(val['width'] != undefined) col['width'] = val['width']
+                columns.push(col)
             })
 
             return {
