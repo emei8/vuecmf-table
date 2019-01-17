@@ -1,10 +1,13 @@
 <template>
-    <div>
+    <div class="vc-expand">
         <template v-if="row.type == 'table'">
-            <Table border :columns="columns" :data="tableData"></Table>
+            <Table border :columns="columns"  :data="tableData" size="small" :stripe="true" ></Table>
         </template>
     </div>
 </template>
+<style>
+    .vc-expand .ivu-table-stripe .ivu-table-body tr:nth-child(2n) td{ background-color: #fff !important;}
+</style>
 
 <script>
     export default {
@@ -25,6 +28,9 @@
                 columns: columns,
                 tableData: this.row.tableList
             }
+        },
+        method:{
+
         }
     };
 </script>
