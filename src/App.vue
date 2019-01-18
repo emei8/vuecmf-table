@@ -58,7 +58,7 @@ export default {
             function (currentList) { //currentList 为当前页列表数据
                 //console.log(currentList)
                 currentList.forEach(function (val,index) {
-                    console.log(index)
+                   // console.log(index)
                 })
             }
         ,
