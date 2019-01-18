@@ -202,7 +202,7 @@
                 title="添加"
                 v-model="dataForm_show"
                 width="60%"
-                fullscreen
+
                 >
             <i-form :label-width="label_width" :model="dataForm"  ref="dataForm"  :rules="ruleValidate">
                 <template v-for="(item,index) in fields_data">
@@ -524,7 +524,9 @@
                     }
 
                     if(val['data_form'] == true){
-                        that.$set(that.dataForm,val['prop'],'')
+                        let defalut_val = '';
+                        if(val['default'] != undefined) defalut_val = val['default']
+                        that.$set(that.dataForm,val['prop'],defalut_val)
                         if(val['validate'] != undefined && val['validate'].length != undefined){
                             that.$set(that.ruleValidate,val['prop'],val['validate'])
                         }
@@ -585,6 +587,7 @@
                         that.columns.push(col)
                     }
                 })
+
 
                 //操作列
                 if(that.rowAction != undefined && that.rowAction.length > 0){
