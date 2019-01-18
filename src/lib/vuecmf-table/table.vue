@@ -430,7 +430,7 @@
             //表格头部工具条左边按钮组事件回调
             fun: function (callfun) {
                 //调用外部函数
-                callfun(value)
+                callfun(this.selectRows)
             },
             //操作列事件回调
             rowFun: function (callfun,index,row) {
