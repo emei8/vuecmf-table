@@ -199,9 +199,9 @@
 
         <!-- 数据表单 -->
         <i-modal
-                title="添加"
+                :title="dataFormTitle"
                 v-model="dataForm_show"
-                width="60%"
+                :width="modelWidth"
                 class-name="vertical-center-modal"
                 >
             <i-form :label-width="formLabelWidth" :model="dataForm"  ref="dataForm"  :rules="ruleValidate">
@@ -217,9 +217,7 @@
                                         <i-option
                                                 v-for="(option_item,option_index) in item.options"
                                                 :key="option_index"
-                                                :value="option_index">
-                                            {{ option_item }}
-                                        </i-option>
+                                                :value="option_index">{{ option_item }}</i-option>
                                     </i-select>
 
                                     <i-date-picker
@@ -282,13 +280,14 @@
 
     export default {
         name:'vc-table',
-        props:['formLabelWidth','expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
+        props:['formLabelWidth','modelWidth' ,'expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
         data() {
             return {
                 radioVal:'',
 
                 //数据表单
                 dataForm:{},
+                dataFormTitle:'添加',
                 dataForm_show:false, //数据表单显示
               //  label_width:120, //表单文本宽度
                 ruleValidate:{}, //表单数据验证
@@ -371,12 +370,14 @@
             },
             //添加表单
             addForm: function () {
+                this.dataFormTitle = '添加'
                 //this.dataForm = []
                 this.dataForm_show = true
                 //this.$refs['dataForm'].resetFields()
                 this.saveFun = this.add
             },
             editForm: function (index, row) {
+                this.dataFormTitle = '修改'
                 this.dataForm = row
                 this.dataForm_show = true
                 this.saveFun = this.edit
@@ -532,7 +533,7 @@
                     if(val['data_form'] == true){
                         let defalut_val = '';
                         if(val['default'] != undefined) defalut_val = val['default']
-                        that.$set(that.dataForm,val['prop'],defalut_val)
+                        that.$set(that.dataForm,val['prop'],defalut_val.trim())
                         if(val['validate'] != undefined && val['validate'].length != undefined){
                             that.$set(that.ruleValidate,val['prop'],val['validate'])
                         }
@@ -597,7 +598,7 @@
 
 
                 //操作列
-                if(that.rowAction != undefined && that.rowAction.length > 0){
+                if((that.rowAction != undefined  && that.rowAction.length > 0) || that.add || that.edit || that.del){
                     that.columns.push({
                         title: '操作',
                         slot: 'action',
