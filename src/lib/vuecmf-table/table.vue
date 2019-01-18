@@ -206,46 +206,52 @@
                 >
             <i-form :label-width="formLabelWidth" :model="dataForm"  ref="dataForm"  :rules="ruleValidate">
                 <template v-for="(item,index) in fields_data">
+                    <template v-if="item.data_form == true">
+                        <template v-if="item.data_type == 'hidden'">
+                            <input type="hidden" v-model="dataForm[item.slot]" >
+                        </template>
+                        <template v-else>
+                            <i-row>
+                                <i-form-item :label="item.title"  :prop="item.slot"   >
+                                    <i-select @on-change="dataForm_show = true" style="width:200px"  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                                        <i-option
+                                                v-for="(option_item,option_index) in item.options"
+                                                :key="option_index"
+                                                :value="option_index">
+                                            {{ option_item }}
+                                        </i-option>
+                                    </i-select>
 
-                    <input type="hidden" v-model="dataForm[item.slot]" v-if=" item.data_type == 'hidden' ">
+                                    <i-date-picker
+                                            v-else-if=" item.data_type == 'date' "
+                                            v-model="dataForm[item.slot]"
+                                            type="date"
+                                            format="yyyy-MM-dd"
+                                            placeholder=""
+                                            @on-change="(datetime) =>{ changeDatetime(datetime,'data',item.slot)}"
+                                            @on-open-change="dataForm_show = true"
+                                    >
+                                    </i-date-picker>
 
-                    <i-form-item :label="item.title"  :prop="item.slot"  v-else=" item.data_form  && item.data_type != 'hidden' " >
-                        <i-select @on-change="dataForm_show = true" style="width:200px"  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
-                            <i-option
-                                    v-for="(option_item,option_index) in item.options"
-                                    :key="option_index"
-                                    :value="option_index">
-                                {{ option_item }}
-                            </i-option>
-                        </i-select>
+                                    <i-date-picker
+                                            v-else-if=" item.data_type == 'datetime' "
+                                            v-model="dataForm[item.slot]"
+                                            type="datetime"
+                                            format="yyyy-MM-dd HH:mm:ss"
+                                            placeholder=""
+                                            @on-change="(datetime) =>{ changeDatetime(datetime,'data',item.slot)}"
+                                            @on-open-change="dataForm_show = true"
+                                    >
+                                    </i-date-picker>
 
-                        <i-date-picker
-                                v-else-if=" item.data_type == 'date' "
-                                v-model="dataForm[item.slot]"
-                                type="date"
-                                format="yyyy-MM-dd"
-                                placeholder=""
-                                @on-change="(datetime) =>{ changeDatetime(datetime,'data',item.slot)}"
-                                @on-open-change="dataForm_show = true"
-                        >
-                        </i-date-picker>
+                                    <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
 
-                        <i-date-picker
-                                v-else-if=" item.data_type == 'datetime' "
-                                v-model="dataForm[item.slot]"
-                                type="datetime"
-                                format="yyyy-MM-dd HH:mm:ss"
-                                placeholder=""
-                                @on-change="(datetime) =>{ changeDatetime(datetime,'data',item.slot)}"
-                                @on-open-change="dataForm_show = true"
-                        >
-                        </i-date-picker>
+                                </i-form-item>
 
-                        <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
+                            </i-row>
+                        </template>
 
-                    </i-form-item>
-
-
+                    </template>
 
 
                 </template>
@@ -571,7 +577,8 @@
                         width: val['width'],
                         tips: val['tooltip'],
                         options: val['options'],
-                        filter: val['filter']
+                        filter: val['filter'],
+                        data_form: val['data_form']
 
                     }
 
