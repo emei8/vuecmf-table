@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h2>vuecmf-table demo</h2>
-    <vc-table :add="save" :edit="edit" :del="del"  :checkbox="true"  ref="vcTable"  header-component="radio"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :expand="true"  :width="width"  :height="height" :operate-width="120"  :show-toolbar="true" >
+    <vc-table :add="save" :edit="edit" :del="del"  :checkbox="true"  ref="vcTable"  header-component="radio"  :header-action="headerAction" :cell-event="cellEvent" :row-action="rowAction" server="http://www.b2b.com/api/Table/index" page="page" :limit="20"  :expand="true"  :width="width"  :height="height" :operate-width="120"  :show-toolbar="true"  :form-label-width="150" >
       <template slot="headerAction">
         <i-radio-group v-model="animal">
           <i-radio label="金斑蝶"></i-radio>

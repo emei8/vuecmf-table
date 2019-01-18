@@ -202,15 +202,15 @@
                 title="添加"
                 v-model="dataForm_show"
                 width="60%"
-
+                class-name="vertical-center-modal"
                 >
-            <i-form :label-width="label_width" :model="dataForm"  ref="dataForm"  :rules="ruleValidate">
+            <i-form :label-width="formLabelWidth" :model="dataForm"  ref="dataForm"  :rules="ruleValidate">
                 <template v-for="(item,index) in fields_data">
-                    <i-row>
+
                     <input type="hidden" v-model="dataForm[item.slot]" v-if=" item.data_type == 'hidden' ">
 
                     <i-form-item :label="item.title"  :prop="item.slot"  v-else=" item.data_form  && item.data_type != 'hidden' " >
-                        <i-select @on-change="dataForm_show = true"  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                        <i-select @on-change="dataForm_show = true" style="width:200px"  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
                             <i-option
                                     v-for="(option_item,option_index) in item.options"
                                     :key="option_index"
@@ -247,7 +247,7 @@
 
 
 
-                </i-row>
+
                 </template>
             </i-form>
             <div slot="footer" class="dialog-footer">
@@ -270,13 +270,13 @@
 
     /*
     如果iview页面使用CDN外链接引入的话，则注释这段*/
-    import iView from 'iview'
+    /*import iView from 'iview'
     import 'iview/dist/styles/iview.css';
-    Vue.use(iView)
+    Vue.use(iView)*/
 
     export default {
         name:'vc-table',
-        props:['expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
+        props:['formLabelWidth','expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
         data() {
             return {
                 radioVal:'',
@@ -284,7 +284,7 @@
                 //数据表单
                 dataForm:{},
                 dataForm_show:false, //数据表单显示
-                label_width:120, //表单文本宽度
+              //  label_width:120, //表单文本宽度
                 ruleValidate:{}, //表单数据验证
                 saveFun: function () {
 
@@ -754,7 +754,7 @@
     }
 </script>
 
-<style scoped="true">
+<style scoped="true" >
     .filter-form-content{ max-height:460px; display: block; overflow-y: auto;}
     .dropdown-content{ max-height: 260px; padding: 10px; overflow-y: auto; max-width: 500px; overflow-x: auto }
     .ivu-col{ margin-bottom: 10px;}
@@ -764,6 +764,15 @@
     .table-tools .ivu-dropdown:last-child .ivu-btn{ border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important;  }
     .pagination{ margin-top: 10px;}
     .table-tools .ivu-btn-default:hover{ border-color: #dcdee2}
+
+    .vertical-center-modal{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .vertical-center-modal .ivu-modal{
+        top: 0;
+    }
 
 </style>
 
