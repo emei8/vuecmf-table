@@ -151,7 +151,7 @@
                 <!-- 自定义行事件 -->
                 <template v-if="rowAction">
                     <span v-for="(item,k) in rowAction">
-                        <template v-if=" item.callback == undefined || item.callback(index, row) == false || row.callback_result == false ">
+                        <template v-if=" item.callback == undefined || item.callback(index, row) === false || row.callback_result === false ">
                             <i-button style="margin-right: 5px"
                                     :type="item.type"
                                       size="small"
@@ -421,11 +421,12 @@
             //当前选择行数据
             currentSelect:function (selection, row) {
                 this.currentSelectRow = row
+                this.$emit('on-select',selection, row)
             },
             //获取所选行数据
             getSelectRows:function (selection) {
                 this.selectRows = selection
-
+                this.$emit('on-selection-change',selection)
             },
             //表格头部工具条左边按钮组事件回调
             fun: function (callfun) {
