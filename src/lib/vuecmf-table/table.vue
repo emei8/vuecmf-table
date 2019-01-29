@@ -129,6 +129,8 @@
                 :width="width"
                 @on-select="currentSelect"
                 @on-selection-change="getSelectRows"
+                @on-select-all="selectAll"
+                @on-select-all-cancel="selectAllCancel"
         >
             <!-- 表格行自定义 -->
             <template v-for="(item,index) in columns"  slot-scope="{ row }"   :slot="item.slot"  >
@@ -307,12 +309,13 @@
         props:['importServer','formLabelWidth','modelWidth' ,'expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
         data() {
             return {
-                file: null,
+                //数据导入相关
                 importModal: false, //是否显示导入对话框
                 importExcelData: [], //导入的文件内容
                 importExcelPercentage:0, //导入进度百分比
                 importCurrentPage:0, //导入当前进度页
-                radioVal:'',
+
+
 
                 //数据表单
                 dataForm:{},
@@ -372,12 +375,13 @@
             }
 
         },
-       /* watch:{
-            filterForm: function(newFilterForm){
+        watch:{
+            /*filterForm: function(newFilterForm){
                 this.$refs['filterForm'].resetFields();
                 console.log(newFilterForm)
-            }
-        },*/
+            }*/
+
+        },
         updated() {
             let that = this
             //执行外部传入的事件
@@ -560,6 +564,15 @@
             getSelectRows:function (selection) {
                 this.selectRows = selection
                 this.$emit('on-selection-change',selection)
+            },
+            //取消全选
+            selectAllCancel:function (selection) {
+                this.$emit('on-select-all-cancel',selection)
+            },
+            //全选
+            selectAll:function (selection) {
+                this.selectRows = selection
+                this.$emit('on-select-all',selection)
             },
             //表格头部工具条左边按钮组事件回调
             fun: function (callfun) {
