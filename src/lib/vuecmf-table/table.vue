@@ -100,6 +100,8 @@
                         </div>
                     </i-poptip>
 
+                    <i-button type="default"  title="导入" @click="importModal = true"><i-icon type="md-cloud-upload" /></i-button>
+
                     <i-dropdown trigger="click" @on-click="downloadExport" :transfer="true"  placement="bottom-end">
                         <i-button type="default"  title="导出">
                             <i-icon type="md-download" />
@@ -192,9 +194,7 @@
                 >
             <span class="ivu-tag-red">{{downloadError}}</span>
             <i-progress  :stroke-width="18" :percent="percentage"></i-progress>
-            <div slot="footer">
-
-            </div>
+            <div slot="footer"></div>
         </i-modal>
 
         <!-- 数据表单 -->
@@ -262,6 +262,30 @@
         </i-modal>
 
 
+        <!-- 导入数据 -->
+        <Modal v-model="importModal" title="导入" >
+            <i-row class="import-btn">
+                <i-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+                    <i-button icon="md-cloud-download" type="success" @click="downloadTemplate" >下载模板</i-button>
+                </i-col>
+                <i-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+                    <input type="file" ref="importExcelForm" class="file-form" @change="importExcel" >
+                    <i-button icon="md-cloud-upload" type="primary" @click="triggerUpload">上传文件</i-button>
+                </i-col>
+            </i-row>
+            <i-row>
+                <i-col>
+                    <i-progress  :stroke-width="18" :percent="importExcelPercentage"></i-progress>
+                </i-col>
+            </i-row>
+
+            <template slot="footer">
+                <i-button type="default"   @click="importModal = false">取消</i-button>
+                <i-button type="primary"   @click="startImportData">开始</i-button>
+            </template>
+        </Modal>
+
+
     </div>
 
 </template>
@@ -269,9 +293,9 @@
 <script>
     import Vue from 'vue'
     import axios from 'axios'
-    import jsonExport from './jsonExport'
+    import {jsonExport,jsonImport} from './jsonUtils'
     import expandRow from './table-expand.vue'
-
+    import qs from 'qs'
     /*
     如果iview页面使用CDN外链接引入的话，则注释这段*/
     /*import iView from 'iview'
@@ -280,9 +304,14 @@
 
     export default {
         name:'vc-table',
-        props:['formLabelWidth','modelWidth' ,'expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
+        props:['importServer','formLabelWidth','modelWidth' ,'expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
         data() {
             return {
+                file: null,
+                importModal: false, //是否显示导入对话框
+                importExcelData: [], //导入的文件内容
+                importExcelPercentage:0, //导入进度百分比
+                importCurrentPage:0, //导入当前进度页
                 radioVal:'',
 
                 //数据表单
@@ -358,7 +387,106 @@
             }
         },
         methods: {
-            //处理日历数据
+            //格式化日期
+            dateFormat(dateObj,fmt){
+                let obj = {
+                    "m+" : dateObj.getMonth() + 1,                 //月份
+                    "d+" : dateObj.getDate() - 1,                    //日
+                    "H+" : dateObj.getHours(),                   //小时
+                    "i+" : dateObj.getMinutes(),                 //分
+                    "s" : dateObj.getSeconds(),                 //秒
+                };
+                if(/(Y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (dateObj.getFullYear()+""));
+                for(let k in obj){
+                    if(new RegExp("("+ k +")").test(fmt)){
+                        fmt = fmt.replace(RegExp.$1, obj[k] < 10 ? "0" + obj[k] : obj[k]);
+                    }
+                }
+                return fmt;
+            },
+            //触发上传事件
+            triggerUpload(){
+                this.importExcelPercentage = 0
+                this.importCurrentPage = 0
+                this.$refs.importExcelForm.click()
+            },
+            //上传导入EXCEL
+            importExcel(fileForm){
+                if(fileForm.target.files[0].type != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' && fileForm.target.files[0].type != 'application/vnd.ms-excel'){
+                    this.$Message.error('上传文件类型错误！只能上传文件xlsx,xls类型文件');
+                    return false
+                }
+                jsonImport(fileForm.target,this.callbackUploadExcelData)
+            },
+            //获取上传的EXCEL数据的回调函数
+            callbackUploadExcelData(file_data){
+                let that = this
+                if(file_data.length == 0) return false
+
+                let newData = []
+
+                file_data.forEach(function (v,k) {
+                    let item_data = {}
+                    that.columns.forEach(function (val, key) {
+                        if(val['title'] != undefined && val['slot'] != 'action'){
+                            let new_val = v[val['title']]
+                            if((val['data_type'] == 'datetime' || val['data_type'] == 'date') && new_val > 40000 && new_val < 90000){
+                                new_val = that.dateFormat(new Date(1900, 0, new_val),'Y/m/d H:i:s')  //如果日期变成类似42747 则用这种方式转换
+                            }
+                            if(val['options'] != undefined && val['options'] != ''){
+                                val['options'].forEach(function(sv,sk){
+                                    if(sv == new_val){
+                                        new_val = sk
+                                    }
+                                })
+                            }
+                            item_data[val['slot']] = new_val
+                        }
+                    })
+                    newData[k] = item_data
+                })
+
+                this.importExcelData = newData
+            },
+            //开始导入数据
+            startImportData(){
+                let that = this
+
+                //每次处理20条
+                let pageNum = 20
+                let pages = Math.ceil(that.importExcelData.length / pageNum)
+
+                if(that.importCurrentPage >= pages) return false
+
+                let post_data = that.importExcelData.slice(that.importCurrentPage * pageNum,(that.importCurrentPage + 1) * pageNum)
+
+                if(post_data != '' && post_data != null && post_data.length != 0){
+                    that.post(that.importServer,{data:post_data}).then(function(data){
+                        if(data.status == 200){
+                            that.importExcelPercentage = Math.ceil((that.importCurrentPage + 1) / pages * 100)
+                        }
+                        that.importCurrentPage ++
+                        that.startImportData()
+                    })
+                }
+
+            },
+            //下载模板文件
+            downloadTemplate(){
+                let tpl_data = []
+                let item = []
+                //将下载的字段名替换成表格的表头名称
+                this.columns.forEach(function (v,k) {
+                    if(v['slot'] != 'action' && v['slot'] != undefined){
+                        //过滤HTML标签
+                        let label = v['title'].replace(/<[^>]*>/g,'')
+                        item[label] = ''
+                    }
+                });
+                tpl_data.push(item)
+                jsonExport(tpl_data,'xlsx','数据模板')
+            },
+            //处理日历控件数据
             changeDatetime: function (datetime, formType ,prop) {
                 if(formType == 'filter'){
                     this.filterForm[prop] = datetime
@@ -395,7 +523,12 @@
                 callback(this.dataForm)
             },
             post: function (url,data) {
-                return axios.post(url, data)
+                let config = {
+                    headers : {
+                        'Content-Type':'application/x-www-form-urlencoded'
+                    },
+                };
+                return axios.post(url, qs.stringify(data),config)
             },
             get: function (url) {
                 return axios.get(url)
@@ -498,6 +631,7 @@
                         fixed: true
                     })
                 }
+
 
                 //展开功能
                 if(that.expand){
@@ -664,7 +798,7 @@
             //下载导出
             downloadExport: function (type) {
                 if(this.total == 0){
-                    this.$message.error('列表无数据！');
+                    this.$Message.error('列表无数据！');
                     return false
                 }
                 this.downloadTips = true
@@ -737,7 +871,7 @@
                     let msg = '接口异常，无法拉取数据！'
                     if(data.data.message != undefined) msg = msg + data.data.message
                     if(data.data.msg != undefined) msg = msg + data.data.msg
-                    this.$message.error(msg);
+                    this.$Message.error(msg);
                     return false
                 }
                 this.tableData = data.data.data
@@ -783,10 +917,15 @@
         top: 0;
     }
 
+    .import-btn .ivu-col{
+        text-align: center;
+    }
+
 </style>
 
 <style>
     .table-tools .search-input .ivu-input{ border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
     .ivu-table-cell{ padding-left: 10px !important; padding-right: 10px !important;}
+    .file-form{ display: none; }
 </style>
 

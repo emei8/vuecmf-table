@@ -30,11 +30,46 @@ let sheet2blob = function (sheet, fileType, sheetName) {
 }
 
 
-//保存导出
-let jsonExport = function (dataList,fileType) {
+/**
+ * 保存导出
+ * 参数：
+ *      dataList  导出的数据集合列表
+ *      fileType  导出保存的文件类型
+ *      fileName  导出保存的文件名
+ */
+export function jsonExport(dataList,fileType,fileName) {
     let cur_date = new Date()
     let sheet = XLSX.utils.json_to_sheet(dataList)
-    FileSaver.saveAs(sheet2blob(sheet,fileType), cur_date.toLocaleString() + '.' + fileType)
+    FileSaver.saveAs(sheet2blob(sheet,fileType), fileName + cur_date.toLocaleString() + '.' + fileType)
 }
 
-export default jsonExport
+/**
+ * 导入Excel数据
+ * @param fileObj  表单对象
+ * @param callback  回调函数， 处理上传的数据
+ * @returns {boolean}
+ */
+export function jsonImport(fileObj,callback) {
+    if(!fileObj.files) {
+        return false
+    }
+
+    let file = fileObj.files[0]
+    let reader = new FileReader()
+    let json_data = []
+
+    reader.onload = function(e) {
+        let data = e.target.result
+        let binaryData = XLSX.read(data, {
+            type: 'binary' //以二进制的方式读取
+        })
+
+        let sheet = binaryData.Sheets[binaryData.SheetNames[0]]
+        json_data = XLSX.utils.sheet_to_json(sheet)
+        callback(json_data)
+    }
+
+    reader.readAsBinaryString(file)
+}
+
+
