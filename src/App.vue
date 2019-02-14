@@ -2,9 +2,12 @@
   <div id="app">
     <h2>vuecmf-table demo</h2>
     <vc-table
-            :add="save"
-            :edit="edit"
-            :del="del"
+            @on-add="add"
+            @on-edit="edit"
+            @on-del="del"
+            :show-del-btn="true"
+            :show-edit-btn="true"
+            :show-add-btn="true"
             :checkbox="true"
             ref="vcTable"
             :header-action="headerAction"
@@ -119,7 +122,7 @@ export default {
             console.log(selection)
             console.log(row)
         },
-        save: function (form_data) {
+        add: function (form_data) {
             console.log(form_data)
             console.log('addddddd')
         },

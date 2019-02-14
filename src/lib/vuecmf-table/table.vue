@@ -2,7 +2,7 @@
     <div :style="'width:'+ width + 'px'">
         <i-row :gutter="10" v-if=" showToolbar !== false ">
             <i-col  :xs="24" :sm="8" :md="8" :lg="8"   class="btn-group">
-                <i-button v-if="add" @click="addForm"  type="primary"><i-icon type="md-add-circle" /> 添加</i-button>
+                <i-button v-if="showAddBtn" @click="addForm"  type="primary"><i-icon type="md-add-circle" /> 添加</i-button>
 
                 <i-button-group v-if="headerAction">
                     <template v-for="(item, index) in headerAction">
@@ -139,17 +139,17 @@
 
             <!-- 操作列 -->
             <template slot-scope="{ row, index }" slot="action" >
-                <template v-if="edit">
+                <template v-if="showEditBtn">
                     <i-button style="margin-right: 5px"
                               type="success"
                               size="small"
                               @click.native.prevent="editForm(index, row)" ><Icon type="ios-create" /> 编辑</i-button>
                 </template>
-                <template v-if="del">
+                <template v-if="showDelBtn">
                     <i-button style="margin-right: 5px"
                               type="error"
                               size="small"
-                              @click.native.prevent="delForm(del, row)" ><Icon type="md-trash" /> 删除</i-button>
+                              @click.native.prevent="delForm(row)" ><Icon type="md-trash" /> 删除</i-button>
                 </template>
 
                 <!-- 自定义行事件 -->
@@ -187,7 +187,7 @@
             </i-page>
         </div>
 
-
+        <!-- 下载数据 -->
         <i-modal
                 title="正在下载数据，请稍后..."
                 v-model="downloadTips"
@@ -199,73 +199,15 @@
             <div slot="footer"></div>
         </i-modal>
 
-        <!-- 数据表单 -->
-        <i-modal
-                :title="dataFormTitle"
-                v-model="dataForm_show"
-                :width="modelWidth"
-                class-name="vertical-center-modal"
-                >
-            <i-form :label-width="formLabelWidth" :model="dataForm"  ref="dataForm"  :rules="ruleValidate">
-                <template v-for="(item,index) in fields_data">
-                    <template v-if="item.data_form == true">
-                        <template v-if="item.data_type == 'hidden'">
-                            <input type="hidden" v-model="dataForm[item.slot]" >
-                        </template>
-                        <template v-else>
-                            <i-row>
-                                <i-form-item :label="item.title"  :prop="item.slot"   >
-                                    <i-select @on-change="dataForm_show = true" style="width:200px"  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
-                                        <i-option
-                                                v-for="(option_item,option_index) in item.options"
-                                                :key="option_index"
-                                                :value="option_index">{{ option_item }}</i-option>
-                                    </i-select>
+        <!-- 添加数据表单 -->
+        <vc-form :data-form-title="dataFormTitle"  :model-width="modelWidth"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"></vc-form>
 
-                                    <i-date-picker
-                                            v-else-if=" item.data_type == 'date' "
-                                            v-model="dataForm[item.slot]"
-                                            type="date"
-                                            format="yyyy-MM-dd"
-                                            placeholder=""
-                                            @on-change="(datetime) =>{ changeDatetime(datetime,'data',item.slot)}"
-                                            @on-open-change="dataForm_show = true"
-                                    >
-                                    </i-date-picker>
-
-                                    <i-date-picker
-                                            v-else-if=" item.data_type == 'datetime' "
-                                            v-model="dataForm[item.slot]"
-                                            type="datetime"
-                                            format="yyyy-MM-dd HH:mm:ss"
-                                            placeholder=""
-                                            @on-change="(datetime) =>{ changeDatetime(datetime,'data',item.slot)}"
-                                            @on-open-change="dataForm_show = true"
-                                    >
-                                    </i-date-picker>
-
-                                    <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
-
-                                </i-form-item>
-
-                            </i-row>
-                        </template>
-
-                    </template>
-
-
-                </template>
-            </i-form>
-            <div slot="footer" class="dialog-footer">
-                <i-button  type="default" @click="resetDataForm">重置</i-button>
-                <i-button type="primary" @click="saveDataForm(saveFun)">保存</i-button>
-            </div>
-
-        </i-modal>
+        <!-- 修改数据表单 -->
+        <vc-form :data-form-title="dataFormTitle"  :model-width="modelWidth"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm"></vc-form>
 
 
         <!-- 导入数据 -->
-        <Modal v-model="importModal" title="导入" >
+        <i-modal v-model="importModal" title="导入" >
             <i-row class="import-btn">
                 <i-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
                     <i-button icon="md-cloud-download" type="success" @click="downloadTemplate" >下载模板</i-button>
@@ -285,7 +227,7 @@
                 <i-button type="default"   @click="importModal = false">取消</i-button>
                 <i-button type="primary"   @click="startImportData">开始</i-button>
             </template>
-        </Modal>
+        </i-modal>
 
 
     </div>
@@ -297,6 +239,7 @@
     import axios from 'axios'
     import {jsonExport,jsonImport} from './jsonUtils'
     import expandRow from './table-expand.vue'
+    import VcForm from './form.vue'
     import qs from 'qs'
     /*
     如果iview页面使用CDN外链接引入的话，则注释这段*/
@@ -306,7 +249,8 @@
 
     export default {
         name:'vc-table',
-        props:['importServer','formLabelWidth','modelWidth' ,'expand','showToolbar','add','edit','del','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth'],//头部按钮
+        props:['importServer','formLabelWidth','modelWidth' ,'expand','showToolbar','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn'],//头部按钮
+        components:{VcForm},
         data() {
             return {
                 //数据导入相关
@@ -315,17 +259,13 @@
                 importExcelPercentage:0, //导入进度百分比
                 importCurrentPage:0, //导入当前进度页
 
-
-
                 //数据表单
-                dataForm:{},
+                currentRowData:{}, //当前编辑行数据
+                oldCurrentRowData:{},
+                dataForm:{}, //添加表单数据
+                editDataForm:{}, //编辑表单数据
                 dataFormTitle:'添加',
-                dataForm_show:false, //数据表单显示
-              //  label_width:120, //表单文本宽度
                 ruleValidate:{}, //表单数据验证
-                saveFun: function () {
-
-                },
 
                 //筛选表单
                 filterForm: {},
@@ -495,36 +435,31 @@
                 if(formType == 'filter'){
                     this.filterForm[prop] = datetime
                     this.filter_show = true
-                }else{
-                    this.dataForm[prop] = datetime
-                    this.dataForm_show = true
                 }
             },
             //添加表单
             addForm: function () {
+                this.$refs['addDataDlg'].$refs['addDataForm'].resetFields()
                 this.dataFormTitle = '添加'
-                //this.dataForm = []
-                this.dataForm_show = true
-                //this.$refs['dataForm'].resetFields()
-                this.saveFun = this.add
+                this.$refs['addDataDlg'].dataFormShow = true
             },
+            //修改表单
             editForm: function (index, row) {
                 this.dataFormTitle = '修改'
-                this.dataForm = row
-                this.dataForm_show = true
-                this.saveFun = this.edit
+                this.editDataForm = row
+                this.$refs['editDataDlg'].dataFormShow = true
             },
-            delForm(callback,row){
-                callback(row)
+            //删除行数据
+            delForm(row){
+                this.$emit('on-del',row)
             },
-            //重置数据表单
-            resetDataForm: function () {
-                this.$refs['dataForm'].resetFields()
+            //保存添加数据表单
+            saveAddDataForm: function (data) {
+                this.$emit('on-add',data)
             },
-            //保存数据表单
-            saveDataForm: function (callback) {
-                this.dataForm_show = false
-                callback(this.dataForm)
+            //保存修改的数据表单
+            saveEditDataForm: function (data) {
+                this.$emit('on-edit',data)
             },
             post: function (url,data) {
                 let config = {

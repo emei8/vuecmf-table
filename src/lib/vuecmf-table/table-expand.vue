@@ -1,12 +1,12 @@
 <template>
     <div class="vc-expand">
         <template v-if="row.type == 'table'">
-            <Table border :columns="columns"  :data="tableData" size="small" :stripe="true" >
+            <i-table border :columns="columns"  :data="tableData" size="small" :stripe="true" >
                 <!-- 表格行自定义 -->
                 <template v-for="(item,index) in columns"  slot-scope="{ row }"   :slot="item.slot"  >
                     <span  v-html="formatter(row,item.slot,item.data_type,item.options)"></span>
                 </template>
-            </Table>
+            </i-table>
         </template>
     </div>
 </template>

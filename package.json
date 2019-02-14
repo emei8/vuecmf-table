@@ -1,7 +1,7 @@
 {
   "name": "vuecmf-table",
-  "description": "基于vue2和iview的列表组件，内置添加、修改、删除、搜索、筛选、分页、导出EXCEL等功能",
-  "version": "2.1.0",
+  "description": "基于vue2和iview的列表组件，内置添加、修改、删除、搜索、筛选、分页、导入及导出EXCEL等功能",
+  "version": "2.1.1",
   "author": "emei8 <386196596@qq.com>",
   "license": "MIT",
   "scripts": {
