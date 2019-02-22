@@ -45,7 +45,7 @@
                                     >
                                     </i-date-picker>
 
-                                    <vc-upload @on-upload-success="uploadSuccess"  :ref="item.slot" :prop="item.slot"  v-else-if=" item.data_type == 'image' || item.data_type == 'file' "></vc-upload>
+                                    <vc-upload @on-upload-success="uploadSuccess" :upload-file-server="uploadFileServer" :extension="item.extension"  :upload-file-max-size="uploadFileMaxSize"  :ref="item.slot" :prop="item.slot"  v-else-if=" item.data_type == 'image' || item.data_type == 'file' "></vc-upload>
 
 
                                     <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
@@ -75,7 +75,7 @@
 
     export default {
         name:'vc-form',
-        props:['dataFormTitle','modelWidth','formLabelWidth','dataForm','ruleValidate','fieldsData','refName'],
+        props:['dataFormTitle','modelWidth','formLabelWidth','dataForm','ruleValidate','fieldsData','refName','uploadFileServer','uploadFileMaxSize'],
         components:{VcUpload},
         data(){
             return {
@@ -90,6 +90,7 @@
                     that.dataForm[val.slot] = that.getFormatDate(that.dataForm[val.slot])
                 }
             })
+
         },
         mounted: function () {
 

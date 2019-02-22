@@ -15,6 +15,8 @@
             :row-action="rowAction"
             server="http://www.b2b.com/api/Table/index"
             import-server="http://www.b2b.com/api/Table/importData"
+            upload-file-server="http://www.b2b.com/api/Table/upload"
+            :upload-file-max-size="uploadFileMaxSize"
             page="page"
             :limit="20"
             :expand="false"
@@ -52,6 +54,7 @@ export default {
   data () {
     let that = this
     return {
+        uploadFileMaxSize: 5120, //最大可上传文件大小
         animal:'金斑蝶',
         height: 300,
         width: 800,

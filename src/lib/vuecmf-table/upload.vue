@@ -17,14 +17,14 @@
                 :show-upload-list="false"
                 :default-file-list="defaultList"
                 :on-success="handleSuccess"
-                :format="['jpg','jpeg','png']"
-                :max-size="2048"
+                :format="extension"
+                :max-size="uploadFileMaxSize"
                 :on-format-error="handleFormatError"
                 :on-exceeded-size="handleMaxSize"
                 :before-upload="handleBeforeUpload"
                 multiple
                 type="drag"
-                action="http://www.b2b.com/api/Table/upload"
+                :action="uploadFileServer"
                 style="display: inline-block;width:58px;">
             <div style="width: 58px;height:58px;line-height: 58px;">
                 <i-icon type="md-add" size="20"></i-icon>
@@ -39,19 +39,10 @@
 <script>
     export default {
         name: 'vc-upload',
-        props:['uploadServer','prop'],
+        props:['uploadServer','prop','uploadFileServer','extension','uploadFileMaxSize'],
         data(){
             return {
-                defaultList: [
-                    /*{
-                        'name': 'a42bdcc1178e62b4694c830f028db5c0',
-                        'url': 'https://o5wwk8baw.qnssl.com/a42bdcc1178e62b4694c830f028db5c0/avatar'
-                    },
-                    {
-                        'name': 'bc7521e033abdd1e92222d733590f104',
-                        'url': 'https://o5wwk8baw.qnssl.com/bc7521e033abdd1e92222d733590f104/avatar'
-                    }*/
-                ],
+                defaultList: [],
                 viewCurrentFile: '',
                 visible: false,
                 uploadList: []
@@ -74,8 +65,8 @@
             },
             handleFormatError (file) {
                 this.$Notice.warning({
-                    title: 'The file format is incorrect',
-                    desc: 'File format of ' + file.name + ' is incorrect, please select jpg or png.'
+                    title: '上传文件格式错误',
+                    desc: 'File format of ' + file.name + ' is incorrect, please select '+ this.extension.join(',') +'.'
                 });
             },
             handleMaxSize (file) {
@@ -85,10 +76,10 @@
                 });
             },
             handleBeforeUpload () {
-                const check = this.uploadList.length < 5;
+                const check = this.uploadList.length < 10;
                 if (!check) {
                     this.$Notice.warning({
-                        title: 'Up to five pictures can be uploaded.'
+                        title: 'Up to ten pictures can be uploaded.'
                     });
                 }
                 return check;
@@ -96,9 +87,9 @@
         },
         updated: function(){
             this.uploadList = this.$refs.upload.fileList
-
         },
         mounted: function(){
+
             //this.uploadList = this.$refs.upload.fileList
         }
     }
