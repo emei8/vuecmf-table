@@ -45,6 +45,9 @@
                                     >
                                     </i-date-picker>
 
+                                    <vc-upload @on-upload-success="uploadSuccess"  :ref="item.slot" :prop="item.slot"  v-else-if=" item.data_type == 'image' || item.data_type == 'file' "></vc-upload>
+
+
                                     <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
 
                                 </i-form-item>
@@ -68,9 +71,12 @@
 </template>
 
 <script>
+    import VcUpload from './upload.vue'
+
     export default {
         name:'vc-form',
         props:['dataFormTitle','modelWidth','formLabelWidth','dataForm','ruleValidate','fieldsData','refName'],
+        components:{VcUpload},
         data(){
             return {
                 dataFormShow: false,
@@ -89,11 +95,17 @@
 
         },
         methods:{
+            uploadSuccess: function (uploadList,prop) {
+                let fileList = []
+                uploadList.forEach(function (v,k) {
+                    fileList.push(v.url)
+                })
+                this.dataForm[prop] = fileList.join(',')
+            },
             //处理iview的DatePicker时间带T带Z格式问题
             getFormatDate: function(dateStr){
                 let dateJson = new Date(dateStr).toJSON()
                 let dateRes = new Date(+ new Date(dateJson) + 8 * 3600 * 1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')
-                console.log(dateRes)
                 return dateRes
             },
             //重置数据表单

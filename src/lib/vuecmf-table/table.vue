@@ -448,6 +448,26 @@
                 this.dataFormTitle = '修改'
                 this.editDataForm = row
                 this.$refs['editDataDlg'].dataFormShow = true
+                console.log(row)
+                console.log(this.fields_data)
+                let that = this
+                this.fields_data.forEach(function (v,k) {
+                    if(v['data_type'] == 'image' || v['data_type'] == 'file'){
+                        let file = row[v['slot']]
+                        if(file != ''){
+                            let file_arr = new Array()
+                            let file_list = []
+                            file_arr = file.split(',')
+                            file_arr.forEach(function (val,key) {
+                                file_list.push({
+                                    'url': val
+                                })
+                            })
+                            that.$refs['editDataDlg'].$refs[v['slot']][0].defaultList = file_list
+                        }
+
+                    }
+                })
             },
             //删除行数据
             delForm(row){
@@ -479,9 +499,21 @@
                 if((data_type == 'switch' || data_type == 'select') && options != '' && options != undefined){
                     cellValue = options[cellValue]
                 }else if(data_type == 'image'){
-                    cellValue = '<img src="' + cellValue + '" style="width:60px" />'
-                }else if(data_type == 'url'){
-                    cellValue = '<a href="' + cellValue + '" target="_blank">' + cellValue + '</a>'
+                    let arr = new Array()
+                    arr = cellValue.split(',')
+                    let img = ''
+                    arr.forEach(function (v,k) {
+                        img = img + '<img src="' + v + '" style="width:60px" /> '
+                    })
+                    cellValue = img
+                }else if(data_type == 'url' || data_type == 'file'){
+                    let arr = new Array()
+                    arr = cellValue.split(',')
+                    let file = ''
+                    arr.forEach(function (v,k) {
+                        file = file + '<a href="' + v + '" target="_blank">' + v + '</a> '
+                    })
+                    cellValue = file
                 }
 
                 if(row[field_name + '-html'] != undefined){
