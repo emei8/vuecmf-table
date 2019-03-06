@@ -200,10 +200,10 @@
         </i-modal>
 
         <!-- 添加数据表单 -->
-        <vc-form :data-form-title="dataFormTitle"  :model-width="modelWidth"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"></vc-form>
+        <vc-form :data-form-title="dataFormTitle"  :editor-config="editorConfig"   :model-width="modelWidth"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"></vc-form>
 
         <!-- 修改数据表单 -->
-        <vc-form :data-form-title="dataFormTitle"  :model-width="modelWidth"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm"></vc-form>
+        <vc-form :data-form-title="dataFormTitle"  :editor-config="editorConfig"  :model-width="modelWidth"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm"></vc-form>
 
 
         <!-- 导入数据 -->
@@ -249,7 +249,7 @@
 
     export default {
         name:'vc-table',
-        props:['importServer','formLabelWidth','modelWidth' ,'expand','showToolbar','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize'],//头部按钮
+        props:['importServer','formLabelWidth','modelWidth' ,'expand','showToolbar','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig'],//头部按钮
         components:{VcForm},
         data() {
             return {

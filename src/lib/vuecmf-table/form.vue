@@ -47,6 +47,13 @@
 
                                     <vc-upload @on-upload-success="uploadSuccess" :upload-file-server="uploadFileServer" :extension="item.extension"  :upload-file-max-size="uploadFileMaxSize"  :ref="item.slot" :prop="item.slot"  v-else-if=" item.data_type == 'image' || item.data_type == 'file' "></vc-upload>
 
+                                    <vue-neditor-wrap  v-else-if=" item.data_type == 'editor' "
+                                            v-model="dataForm[item.slot]"
+                                            :config="editorConfig"
+                                            :destroy="false"
+                                            @ready="editorReady">
+                                    </vue-neditor-wrap>
+
 
                                     <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
 
@@ -71,15 +78,32 @@
 </template>
 
 <script>
+
+    import VueNeditorWrap from 'vue-neditor-wrap'
     import VcUpload from './upload.vue'
+
 
     export default {
         name:'vc-form',
-        props:['dataFormTitle','modelWidth','formLabelWidth','dataForm','ruleValidate','fieldsData','refName','uploadFileServer','uploadFileMaxSize'],
-        components:{VcUpload},
+        props:['dataFormTitle','modelWidth','formLabelWidth','dataForm','ruleValidate','fieldsData','refName','uploadFileServer','uploadFileMaxSize','editorConfig'],
+        components:{VcUpload,VueNeditorWrap},
         data(){
             return {
-                dataFormShow: false,
+                editorCfg: {
+                    // 如果需要上传功能,找后端小伙伴要服务器接口地址
+                    serverUrl: '',
+                    // 你的UEditor资源存放的路径,相对于打包后的index.html
+                    UEDITOR_HOME_URL: '',
+                    // 编辑器不自动被内容撑高
+                    autoHeightEnabled: false,
+                    // 初始容器高度
+                    initialFrameHeight: 240,
+                    // 初始容器宽度
+                    initialFrameWidth: '100%',
+                    // 关闭自动保存
+                    enableAutoSave: false
+                },
+                dataFormShow: false
             }
         },
         updated:function () {
@@ -93,9 +117,17 @@
 
         },
         mounted: function () {
+            this.editorCfg = this.editorConfig
+            this.editorCfg.serverUrl = this.uploadFileServer
+            console.log(this.editorCfg)
 
         },
         methods:{
+            editorReady(text){
+                console.log(text)
+            },
+
+
             uploadSuccess: function (uploadList,prop) {
                 let fileList = []
                 uploadList.forEach(function (v,k) {

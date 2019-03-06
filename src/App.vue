@@ -17,6 +17,7 @@
             import-server="http://www.b2b.com/api/Table/importData"
             upload-file-server="http://www.b2b.com/api/Table/upload"
             :upload-file-max-size="uploadFileMaxSize"
+            :editor-config="editorConfig"
             page="page"
             :limit="20"
             :expand="false"
@@ -25,7 +26,7 @@
             :operate-width="120"
             :show-toolbar="true"
             :form-label-width="150"
-            model-width="60%"
+            model-width="80%"
             @on-select="selectRow" >
       <template slot="headerAction">
         <i-radio-group v-model="animal">
@@ -54,6 +55,18 @@ export default {
   data () {
     let that = this
     return {
+        editorConfig: {
+            // 你的UEditor资源存放的路径,相对于打包后的index.html
+            UEDITOR_HOME_URL: '/public/NEditor/',
+            // 编辑器不自动被内容撑高
+            autoHeightEnabled: false,
+            // 初始容器高度
+            initialFrameHeight: 300,
+            // 初始容器宽度
+            initialFrameWidth: '100%',
+            // 关闭自动保存
+            enableAutoSave: false
+        },
         uploadFileMaxSize: 5120, //最大可上传文件大小
         animal:'金斑蝶',
         height: 300,
