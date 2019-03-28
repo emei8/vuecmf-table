@@ -713,7 +713,7 @@
 
 
                 //操作列
-                if((that.rowAction != undefined  && that.rowAction.length > 0) || that.add || that.edit || that.del){
+                if((that.rowAction != undefined  && that.rowAction.length > 0) || that.showAddBtn || that.showEditBtn || that.showDelBtn){
                     that.columns.push({
                         title: '操作',
                         slot: 'action',
@@ -883,7 +883,7 @@
     .ivu-col{ margin-bottom: 10px;}
     .filter-form-content .ivu-col{ margin-bottom: 0;}
     .filter-form-content .ivu-form-item{ margin-bottom: 10px;}
-    .table-tools .ivu-btn{ margin-left: -1px !important;  border-radius: 0px;}
+    .table-tools .ivu-btn{ margin-left: -1px !important;  border-radius: 0px; height: 32px; }
     .table-tools .ivu-dropdown:last-child .ivu-btn{ border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important;  }
     .pagination{ margin-top: 10px;}
     .table-tools .ivu-btn-default:hover{ border-color: #dcdee2}

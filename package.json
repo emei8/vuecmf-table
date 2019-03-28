@@ -1,16 +1,23 @@
 {
   "name": "vuecmf-table",
   "description": "基于vue2和iview的列表组件，内置添加、修改、删除、搜索、筛选、分页、导入及导出EXCEL等功能",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "author": "emei8 <386196596@qq.com>",
   "license": "MIT",
+  "main": "dist/vuecmf.table.js",
+  "directories": {
+    "dist": "dist"
+  },
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
     "build": "cross-env NODE_ENV=production webpack --mode production --progress --hide-modules"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emei8/vuecmf-table.git"
+  },
   "dependencies": {
     "axios": "^0.18.0",
-    "element-ui": "^2.4.9",
     "file-saver": "^2.0.0-rc.4",
     "font-awesome": "^4.7.0",
     "iview": "^3.2.1",
@@ -39,5 +46,9 @@
     "webpack": "^4.0.0",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.11"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/emei8/vuecmf-table/issues"
+  },
+  "homepage": "https://github.com/emei8/vuecmf-table#readme"
 }
