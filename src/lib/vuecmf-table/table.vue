@@ -496,7 +496,7 @@
             formatter:function (row, field_name, data_type, options) {
                 let cellValue = row[field_name]
 
-                if((data_type == 'switch' || data_type == 'select') && options != '' && options != undefined){
+                if((data_type == 'switch' || data_type == 'select' || data_type == 'radio') && options != '' && options != undefined){
                     cellValue = options[cellValue]
                 }else if(data_type == 'image'){
                     let arr = new Array()
@@ -648,7 +648,7 @@
                     if(val['data_form'] == true){
                         let defalut_val = '';
                         if(val['default'] != undefined) defalut_val = val['default']
-                        that.$set(that.dataForm,val['prop'],defalut_val.trim())
+                        that.$set(that.dataForm,val['prop'],defalut_val)
                         if(val['validate'] != undefined && val['validate'].length != undefined){
                             that.$set(that.ruleValidate,val['prop'],val['validate'])
                         }

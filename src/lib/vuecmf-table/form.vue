@@ -22,10 +22,18 @@
                             <i-row>
                                 <i-form-item :label="item.title"  :prop="item.slot" >
                                     <i-select @on-change="selectEvent(item,dataForm[item.slot])" style="width:200px"  v-model="dataForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
-                                        <i-option
-                                                v-for="(option_item,option_index) in item.options"
-                                                :key="option_index"
-                                                :value="option_index">{{ option_item }}</i-option>
+                                        <template v-for="(option_item,option_index) in item.options">
+                                            <i-option v-if=" /^\d+$/.test(option_index) "
+                                                    :key="option_index"
+                                                    :value="parseInt(option_index)">{{ option_item }}</i-option>
+                                            <i-option v-else-if=" /^\d+\.+\d+$/.test(option_index) "
+                                                      :key="option_index"
+                                                      :value="parseFloat(option_index)">{{ option_item }}</i-option>
+                                            <i-option v-else
+                                                      :key="option_index"
+                                                      :value="option_index">{{ option_item }}</i-option>
+                                        </template>
+
                                     </i-select>
 
                                     <i-date-picker
@@ -60,7 +68,11 @@
                                     </vue-neditor-wrap>
 
                                     <i-radio-group  v-else-if=" item.data_type == 'radio' "  v-model="dataForm[item.slot]">
-                                        <i-radio v-for="(option_item,option_index) in item.options" :label="option_index"><span>{{ option_item }}</span></i-radio>
+                                        <template v-for="(option_item,option_index) in item.options">
+                                            <i-radio v-if=" /^\d+$/.test(option_index) " :label="parseInt(option_index)"><span>{{ option_item }}</span></i-radio>
+                                            <i-radio v-else-if=" /^\d+\.+\d+$/.test(option_index) " :label="parseFloat(option_index)"><span>{{ option_item }}</span></i-radio>
+                                            <i-radio v-else  :label="option_index"><span>{{ option_item }}</span></i-radio>
+                                        </template>
                                     </i-radio-group>
 
                                     <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
@@ -122,19 +134,23 @@
             }
         },
         updated:function () {
-            //处理iview的DatePicker时间带T带Z格式问题
             let that = this
             that.fieldsData.forEach(function (val,key) {
                 if(val.data_type == 'date' ||  val.data_type == 'datetime'){
+                    //处理iview的DatePicker时间带T带Z格式问题
                     that.dataForm[val.slot] = that.getFormatDate(that.dataForm[val.slot])
                 }
             })
 
         },
         mounted: function () {
-            this.editorCfg = this.editorConfig
-            this.editorCfg.serverUrl = this.uploadFileServer
-            console.log(this.editorCfg)
+            let that = this
+            that.editorCfg = that.editorConfig
+            that.editorCfg.serverUrl = that.uploadFileServer
+            console.log(that.editorCfg)
+
+            //初始化表单默认值
+            console.log(that.fieldsData)
 
         },
         methods:{
