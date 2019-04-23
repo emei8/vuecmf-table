@@ -201,6 +201,7 @@
             //保存数据表单
             saveDataForm: function () {
                 this.$emit('on-save-data-form',this.dataForm)
+                this.dataFormShow = false
             },
             //处理日历控件数据
             changeDatetime: function (datetime, prop) {
