@@ -200,10 +200,10 @@
         </i-modal>
 
         <!-- 添加数据表单 -->
-        <vc-form :data-form-title="dataFormTitle"  :editor-config="editorConfig"   :model-width="modelWidth" :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"></vc-form>
+        <vc-form :data-form-title="dataFormTitle"  :editor-config="editorConfig"   :model-width="modelWidth"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"></vc-form>
 
         <!-- 修改数据表单 -->
-        <vc-form :data-form-title="dataFormTitle"  :editor-config="editorConfig"  :model-width="modelWidth"  :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm"></vc-form>
+        <vc-form :data-form-title="dataFormTitle"  :editor-config="editorConfig"  :model-width="modelWidth"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm"></vc-form>
 
 
         <!-- 导入数据 -->
@@ -249,7 +249,7 @@
 
     export default {
         name:'vc-table',
-        props:['importServer','formLabelWidth','modelWidth','modelHeight' ,'expand','showToolbar','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig'],//头部按钮
+        props:['importServer','formLabelWidth','modelWidth' ,'expand','showToolbar','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig'],//头部按钮
         components:{VcForm},
         data() {
             return {
@@ -439,7 +439,7 @@
             },
             //添加表单
             addForm: function () {
-                //this.$refs['addDataDlg'].$refs['addDataForm'].resetFields()
+                this.$refs['addDataDlg'].$refs['addDataForm'].resetFields()
                 this.dataFormTitle = '添加'
                 this.$refs['addDataDlg'].dataFormShow = true
             },
@@ -496,7 +496,7 @@
             formatter:function (row, field_name, data_type, options) {
                 let cellValue = row[field_name]
 
-                if((data_type == 'switch' || data_type == 'select' || data_type == 'radio') && options != '' && options != undefined){
+                if((data_type == 'switch' || data_type == 'select') && options != '' && options != undefined){
                     cellValue = options[cellValue]
                 }else if(data_type == 'image'){
                     let arr = new Array()
@@ -570,10 +570,15 @@
                     that.post(url,{
                         action: action
                     }).then(function (data) {
-                        callback(data.data)
+                        callback(data)
                     })
                 }else{  //拉取列表数据
-                    that.post(url + '?'+ that.page + '=' + currentPage,{
+                    let post_url = url + '?'+ that.page + '=' + currentPage
+                    if(url.indexOf('?') != -1){
+                        post_url = url + '&'+ that.page + '=' + currentPage
+                    }
+
+                    that.post(post_url,{
                         pageSize: that.pageSize,
                         orderField: that.orderField,
                         orderSort: that.orderSort,
@@ -584,7 +589,7 @@
                         offset: that.pageSize * (currentPage - 1),
                         limit: that.pageSize
                     }).then(function (data) {
-                        callback(data.data)
+                        callback(data)
                     })
                 }
             },
@@ -648,7 +653,7 @@
                     if(val['data_form'] == true){
                         let defalut_val = '';
                         if(val['default'] != undefined) defalut_val = val['default']
-                        that.$set(that.dataForm,val['prop'],defalut_val)
+                        that.$set(that.dataForm,val['prop'],defalut_val.trim())
                         if(val['validate'] != undefined && val['validate'].length != undefined){
                             that.$set(that.ruleValidate,val['prop'],val['validate'])
                         }
@@ -695,11 +700,7 @@
                         options: val['options'],
                         filter: val['filter'],
                         data_form: val['data_form'],
-                        extension: undefined != val['extension'] ? val['extension'] : '',
-                        filter_field: val['filter_field'],
-                        filter_form_name: val['filter_form_name'],
-                        field_id: val['field_id'],
-                        filter_url: val['filter_url']
+                        extension: undefined != val['extension'] ? val['extension'] : ''
                     }
 
                     if(that.checkbox == true){
@@ -717,7 +718,7 @@
 
 
                 //操作列
-                if((that.rowAction != undefined  && that.rowAction.length > 0) || that.showAddBtn || that.showEditBtn || that.showDelBtn){
+                if((that.rowAction != undefined  && that.rowAction.length > 0) || that.add || that.edit || that.del){
                     that.columns.push({
                         title: '操作',
                         slot: 'action',
@@ -887,9 +888,9 @@
     .ivu-col{ margin-bottom: 10px;}
     .filter-form-content .ivu-col{ margin-bottom: 0;}
     .filter-form-content .ivu-form-item{ margin-bottom: 10px;}
-    .table-tools .ivu-btn{ margin-left: -1px !important;  border-radius: 0px; height: 32px;}
+    .table-tools .ivu-btn{ margin-left: -1px !important;  border-radius: 0px;}
     .table-tools .ivu-dropdown:last-child .ivu-btn{ border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important;  }
-    .pagination{ margin-top: 10px; font-size: 12px;}
+    .pagination{ margin-top: 10px;}
     .table-tools .ivu-btn-default:hover{ border-color: #dcdee2}
 
     .vertical-center-modal{

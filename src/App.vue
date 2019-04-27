@@ -27,7 +27,6 @@
             :show-toolbar="true"
             :form-label-width="150"
             model-width="80%"
-            model-height="80%"
             @on-select="selectRow" >
       <template slot="headerAction">
         <i-radio-group v-model="animal">
