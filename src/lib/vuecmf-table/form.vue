@@ -112,7 +112,7 @@
 
     export default {
         name:'vc-form',
-        props:['dataFormTitle','modelWidth','modelHeight','formLabelWidth','dataForm','ruleValidate','fieldsData','refName','uploadFileServer','uploadFileMaxSize','editorConfig'],
+        props:['dataFormTitle','modelWidth','modelHeight','formLabelWidth','dataForm','ruleValidate','fieldsData','refName','uploadFileServer','uploadFileMaxSize','editorConfig','token'],
         components:{VcUpload,VueNeditorWrap},
         data(){
             return {
@@ -159,9 +159,10 @@
             },
 
             //下拉选择事件
-            selectEvent(item,sel_val){
+            selectEvent(item,sel_val,showDlg){
                 let that = this
-                that.dataFormShow = true
+                if(showDlg == undefined) showDlg = true
+                if(showDlg == true) that.dataFormShow = true
                 console.log(item)
                 if(item.filter_form_name != '' && item.filter_field != '' && item.filter_url != ''){
                     //下拉事件过滤
@@ -170,9 +171,10 @@
                             // v.field_id  通过此字段ID 查询出关联的模型
                             // item.filter_field  在关联模型中要作为筛选条件的字段
                             // sel_val 筛选条件的值
-                            that.$parent.post(item.filter_url,{field_id:v.field_id,filter_field:item.filter_field,sel_val:sel_val}).then(function (data) {
+                            let tokenParam = ''
+                            if(that.token != '') tokenParam = '?token=' + that.token
+                            that.$parent.post(item.filter_url + tokenParam,{field_id:v.field_id,filter_field:item.filter_field,sel_val:sel_val}).then(function (data) {
                                 v.options = data.data.data
-                                console.log(data)
                             });
 
                            // console.log(v.field_id)

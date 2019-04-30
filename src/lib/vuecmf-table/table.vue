@@ -200,10 +200,10 @@
         </i-modal>
 
         <!-- 添加数据表单 -->
-        <vc-form :data-form-title="dataFormTitle"  :editor-config="editorConfig"   :model-width="modelWidth" :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"></vc-form>
+        <vc-form :token="token" :data-form-title="dataFormTitle"  :editor-config="editorConfig"   :model-width="modelWidth" :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"></vc-form>
 
         <!-- 修改数据表单 -->
-        <vc-form :data-form-title="dataFormTitle"  :editor-config="editorConfig"  :model-width="modelWidth"  :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm"></vc-form>
+        <vc-form :token="token" :data-form-title="dataFormTitle"  :editor-config="editorConfig"  :model-width="modelWidth"  :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm"></vc-form>
 
 
         <!-- 导入数据 -->
@@ -266,6 +266,7 @@
                 editDataForm:{}, //编辑表单数据
                 dataFormTitle:'添加',
                 ruleValidate:{}, //表单数据验证
+                token:'', //获取数据的令牌
 
                 //筛选表单
                 filterForm: {},
@@ -331,6 +332,26 @@
             }
         },
         methods: {
+            getUrlParam: function (url,paraName){
+                let arrObj = url.split("?");
+
+                if (arrObj.length > 1) {
+                    let arrPara = arrObj[1].split("&");
+                    let arr;
+
+                    for (let i = 0; i < arrPara.length; i++) {
+                        arr = arrPara[i].split("=");
+
+                        if (arr != null && arr[0] == paraName) {
+                            return arr[1];
+                        }
+                    }
+                    return "";
+                }
+                else {
+                    return "";
+                }
+            },
             //格式化日期
             dateFormat(dateObj,fmt){
                 let obj = {
@@ -566,6 +587,9 @@
             pullData: function (currentPage,callback,action) {
                 let that = this
                 let url = that.server
+
+                that.token = that.getUrlParam(url,'token')
+
                 if(action != undefined && action == 'getField'){  //拉取表格字段信息
                     that.post(url,{
                         action: action
@@ -652,8 +676,9 @@
 
                     if(val['data_form'] == true){
                         let defalut_val = '';
-                        if(val['default'] != undefined) defalut_val = val['default'].toString()
-                        that.$set(that.dataForm,val['prop'],defalut_val.trim())
+                        if(val['default'] != undefined) defalut_val = val['default']
+                        if(typeof defalut_val == "string") defalut_val = defalut_val.trim()
+                        that.$set(that.dataForm,val['prop'],defalut_val)
                         if(val['validate'] != undefined && val['validate'].length != undefined){
                             that.$set(that.ruleValidate,val['prop'],val['validate'])
                         }
@@ -800,6 +825,16 @@
             refresh: function () {
                 this.loading = true
                 this.pullData(this.currentPage,this.getList)
+
+                //处理选择分类进入列表后，表单如有select，联动的表单没有进行过滤问题
+                let that = this
+                that.fields_data.forEach(function (item,index) {
+                    if(item.data_type == 'select'){
+                        that.$refs['addDataDlg'].selectEvent(item,that.$refs['addDataDlg'].dataForm[item.slot],false)
+                    }
+                })
+                console.log(this.$refs['addDataDlg'])
+
             },
             //改变窗口大小
             resizeWin: function () {
