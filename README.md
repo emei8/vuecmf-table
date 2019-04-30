@@ -23,7 +23,8 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
 返回JSON
 ```
 {
-    "fields": [
+	"data": {
+        "fields": [
         {
             "prop": "id",  //字段名称
             "label": "",  //表头显示名称
@@ -50,17 +51,20 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
             "show": true,
             "fixed": false,
             "filter": true
-        }
-
- }
+        }]
+    },
+    "msg": "",
+	"code": 0
+}
 ```
 
 ### 列表数据样例
 ```
 {
-    "total": 53,
-    "last_page": 3,
-    "data": [
+	"data": {
+        "total": 53,
+        "last_page": 3,
+        "data": [
         {
             "id": "63",
             "sku": "DEALT001",
@@ -135,7 +139,9 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
                     {"order_sn":"dbd144155","type":"POP","num":580}
                 ]
             }
-        }      
-    ]
+        }]
+    },
+    "msg": "",
+	"code": 0
 }
 ```
