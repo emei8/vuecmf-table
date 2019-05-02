@@ -631,6 +631,7 @@
             updateTableField: function (data) {
                 let that = this
                 that.columns = []
+                that.fields_data = []
                 //可多选列
                 if(that.checkbox == true){
                     that.columns.push({

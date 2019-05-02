@@ -6,7 +6,7 @@
                 v-model="dataFormShow"
                 :width="modelWidth"
                 class-name="vertical-center-modal"
-                :styles="{top: '20px',height: modelHeight}"
+                :styles="{top: '20px',height: modelHeight,zIndex:100}"
                 draggable
         >
             <div slot="header">
