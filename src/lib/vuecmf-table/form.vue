@@ -75,6 +75,8 @@
                                         </template>
                                     </i-radio-group>
 
+                                    <i-input v-model="dataForm[item.slot]" type="textarea" :rows="4" :placeholder="'请输入' + item.title" v-else-if=" item.data_type == 'textarea' "></i-input>
+
                                     <i-input v-model="dataForm[item.slot]" :placeholder="'请输入' + item.title" v-else=" item.data_type == 'string' "></i-input>
 
                                 </i-form-item>
