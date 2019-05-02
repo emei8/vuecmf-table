@@ -58,7 +58,7 @@
                                     >
                                     </i-date-picker>
 
-                                    <vc-upload @on-upload-success="uploadSuccess" :upload-file-server="uploadFileServer" :extension="item.extension"  :upload-file-max-size="uploadFileMaxSize"  :ref="item.slot" :prop="item.slot"  v-else-if=" item.data_type == 'image' || item.data_type == 'file' "></vc-upload>
+                                    <vc-upload @on-upload-success="uploadSuccess" :upload-file-server="uploadFileServer" :extension="item.extension"  :upload-file-max-size="uploadFileMaxSize"  :ref="item.slot" :prop="item.slot"  v-else-if=" item.data_type == 'image' || item.data_type == 'img' || item.data_type == 'file' "></vc-upload>
 
                                     <vue-neditor-wrap  v-else-if=" item.data_type == 'editor' "
                                             v-model="dataForm[item.slot]"
