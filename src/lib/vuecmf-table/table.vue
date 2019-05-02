@@ -630,7 +630,7 @@
             //加载表格字段回调
             updateTableField: function (data) {
                 let that = this
-
+                that.columns = []
                 //可多选列
                 if(that.checkbox == true){
                     that.columns.push({
