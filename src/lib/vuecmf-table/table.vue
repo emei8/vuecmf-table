@@ -249,7 +249,7 @@
 
     export default {
         name:'vc-table',
-        props:['importServer','formLabelWidth','modelWidth','modelHeight' ,'expand','showToolbar','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig'],//头部按钮
+        props:['importServer','formLabelWidth','modelWidth','modelHeight' ,'expand','showToolbar','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig','isReady'],//头部按钮
         components:{VcForm},
         data() {
             return {
@@ -314,13 +314,6 @@
             window.onresize = () => {
                 that.resizeWin()
             }
-
-        },
-        watch:{
-            /*filterForm: function(newFilterForm){
-                this.$refs['filterForm'].resetFields();
-                console.log(newFilterForm)
-            }*/
 
         },
         updated() {
@@ -761,6 +754,10 @@
                     })
                 }
 
+                if(typeof that.isReady == "function"){
+                    that.isReady(that)
+                }
+
             },
             //加载表格字段信息
             loadTableField: function () {
@@ -834,7 +831,6 @@
                         that.$refs['addDataDlg'].selectEvent(item,that.$refs['addDataDlg'].dataForm[item.slot],false)
                     }
                 })
-                console.log(this.$refs['addDataDlg'])
 
             },
             //改变窗口大小
