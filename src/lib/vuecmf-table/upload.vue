@@ -2,7 +2,7 @@
     <div>
         <div class="vc-upload-list" v-for="item in uploadList">
             <template v-if="item.status === 'finished'">
-                <img :src="item.url">
+                <img :src="item.full_url">
                 <div class="vc-upload-list-cover">
                     <i-icon type="ios-eye-outline" title="查看" @click.native="handleView(item)"></i-icon>
                     <i-icon type="ios-trash-outline" title="移除" @click.native="handleRemove(item)"></i-icon>
@@ -30,7 +30,7 @@
                 <i-icon type="md-add" size="20"></i-icon>
             </div>
         </i-upload>
-        <i-modal title="查看图像" v-model="visible">
+        <i-modal title="查看图像" v-model="visible" :z-index="1810">
             <img :src="viewCurrentFile" v-if="visible" style="width: 100%">
         </i-modal>
     </div>
@@ -50,18 +50,28 @@
         },
         methods: {
             handleView (file) {
-                console.log(file)
-                this.viewCurrentFile = file.url;
+                this.viewCurrentFile = file.full_url;
                 this.visible = true;
             },
             handleRemove (file) {
-                const fileList = this.$refs.upload.fileList;
-                this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+                this.uploadList.splice(this.uploadList.indexOf(file), 1);
             },
             handleSuccess (response, file, fileList) {
-                file.url = response.url
-                file.name = response.name
-                this.$emit('on-upload-success',this.uploadList, this.prop)
+                let file_list = [];
+                fileList.forEach(function (item,index) {
+                    file_list.push({
+                        name: item.name,
+                        percentage: item.percentage,
+                        showProgress: item.showProgress,
+                        size: item.size,
+                        status: item.status,
+                        full_url: item.response.full_url,
+                        url: item.response.url
+                    })
+                })
+                this.uploadList = file_list
+
+                this.$emit('on-upload-success', this.uploadList, this.prop)
             },
             handleFormatError (file) {
                 this.$Notice.warning({
@@ -86,7 +96,7 @@
             }
         },
         updated: function(){
-            this.uploadList = this.$refs.upload.fileList
+           // this.uploadList = this.$refs.upload.fileList
         },
         mounted: function(){
 

@@ -466,18 +466,18 @@
                 console.log(this.fields_data)
                 let that = this
                 this.fields_data.forEach(function (v,k) {
-                    if(v['data_type'] == 'image' || v['data_type'] == 'file'){
-                        let file = row[v['slot']]
+                    if(v['data_type'] == 'image' || v['data_type'] == 'img' || v['data_type'] == 'file'){
+                        let file = row[v['slot'] + '_file_info']
                         if(file != ''){
-                            let file_arr = new Array()
                             let file_list = []
-                            file_arr = file.split(',')
-                            file_arr.forEach(function (val,key) {
+                            file.forEach(function (val,key) {
                                 file_list.push({
-                                    'url': val
+                                    full_url: val.full_url,
+                                    status: val.status,
+                                    name: val.name,
                                 })
                             })
-                            that.$refs['editDataDlg'].$refs[v['slot']][0].defaultList = file_list
+                            that.$refs['editDataDlg'].$refs[v['slot']][0].uploadList = file_list
                         }
 
                     }
@@ -512,20 +512,16 @@
 
                 if((data_type == 'switch' || data_type == 'select' || data_type == 'radio') && options != '' && options != undefined){
                     cellValue = options[cellValue]
-                }else if(data_type == 'image'){
-                    let arr = new Array()
-                    arr = cellValue.split(',')
+                }else if(data_type == 'image' || data_type == 'img'){
                     let img = ''
-                    arr.forEach(function (v,k) {
-                        img = img + '<img src="' + v + '" style="width:60px" /> '
+                    row[field_name + '_file_info'].forEach(function (v,k) {
+                        img = img + '<img src="' + v.full_url + '" style="width:60px" /> '
                     })
                     cellValue = img
                 }else if(data_type == 'url' || data_type == 'file'){
-                    let arr = new Array()
-                    arr = cellValue.split(',')
                     let file = ''
-                    arr.forEach(function (v,k) {
-                        file = file + '<a href="' + v + '" target="_blank">' + v + '</a> '
+                    row[field_name + '_file_info'].forEach(function (v,k) {
+                        file = file + '<a href="' + v.full_url + '" target="_blank">' + v + '</a> '
                     })
                     cellValue = file
                 }
@@ -580,6 +576,10 @@
             pullData: function (currentPage,callback,action) {
                 let that = this
                 let url = that.server
+
+                if(typeof that.isReady == "function"){
+                    that.isReady(that)
+                }
 
                 that.token = that.getUrlParam(url,'token')
 
