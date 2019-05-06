@@ -456,12 +456,17 @@
                 //this.$refs['addDataDlg'].$refs['addDataForm'].resetFields()
                 this.dataFormTitle = '添加'
                 this.$refs['addDataDlg'].dataFormShow = true
+                console.log(this.$refs)
+                this.$refs['addDataDlg'].editorCfg.zIndex = 1800
             },
             //修改表单
             editForm: function (index, row) {
                 this.dataFormTitle = '修改'
                 this.editDataForm = row
                 this.$refs['editDataDlg'].dataFormShow = true
+
+                this.$refs['editDataDlg'].editorCfg.zIndex = 1800
+
                 console.log(row)
                 console.log(this.fields_data)
                 let that = this
