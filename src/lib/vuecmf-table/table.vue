@@ -526,7 +526,7 @@
                 }else if(data_type == 'url' || data_type == 'file'){
                     let file = ''
                     row[field_name + '_file_info'].forEach(function (v,k) {
-                        file = file + '<a href="' + v.full_url + '" target="_blank">' + v + '</a> '
+                        file = file + '<a href="' + v.full_url + '" target="_blank">' + v.url + '</a> '
                     })
                     cellValue = file
                 }

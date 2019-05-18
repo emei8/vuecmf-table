@@ -159,6 +159,7 @@
         methods:{
             editorReady(text){
                 console.log(text)
+
             },
 
             //下拉选择事件
