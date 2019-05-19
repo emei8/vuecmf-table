@@ -12,7 +12,6 @@
             ref="vcTable"
             :header-action="headerAction"
             :cell-event="cellEvent"
-            :row-action="rowAction"
             server="http://www.b2b.com/api/Table/index"
             import-server="http://www.b2b.com/api/Table/importData"
             upload-file-server="http://www.b2b.com/api/Table/upload"
@@ -28,12 +27,16 @@
             :form-label-width="150"
             model-width="80%"
             @on-select="selectRow" >
-      <template slot="headerAction">
+      <template #headerAction>
         <i-radio-group v-model="animal">
           <i-radio label="金斑蝶"></i-radio>
           <i-radio label="爪哇犀牛"></i-radio>
           <i-radio label="印度黑羚"></i-radio>
         </i-radio-group>
+      </template>
+
+      <template #rowAction="slotProps" >
+        <a href="" class="ivu-btn ivu-btn-primary">编辑</a>
       </template>
 
     </vc-table>
@@ -71,27 +74,6 @@ export default {
         animal:'金斑蝶',
         height: 300,
         width: 800,
-        headerAction:[
-            {
-                event: function (selectRows) {
-                    console.log(selectRows)
-                },
-                title: '测试',
-                label: '测试',
-                type: 'success',
-                icon: 'fa fa-plus-circle'
-            },
-            {
-                event: function (selectRows) {
-                    console.log(selectRows)
-                    alert('测试2')
-                },
-                title: '测试2',
-                label: '测试2',
-                type: 'primary',
-                icon: 'fa fa-edit'
-            }
-        ],
         //针对自定义单元格内容的事件处理， 可借助jquery进行DOM操作和事件处理
         cellEvent:
             function (currentList) { //currentList 为当前页列表数据
@@ -100,37 +82,7 @@ export default {
                    // console.log(index)
                 })
             }
-        ,
-        rowAction:[
-            {
-                event: function (index,row) {
-                    console.log(index,row)
-                    that.test()
-                },
-                title: '编辑',
-                type: 'success',
-                icon: '',
-                callback: function(index,row){  //自定义操作项内容
-                    if(row.status == 10){
-                        return false;  //返回false 则不替换操作按钮
-                    }else{
-                        return 'hello world'  //替换操作按钮内容
-                    }
-                }
-            },
-            {
-                event: function (index,row) {
-                    console.log(index,row)
-                    that.test()
-                },
-                title: '删除',
-                type: 'primary',
-                icon: '',
-                callback: function(index,row){  //自定义操作项内容
 
-                }
-            }
-        ]
     }
   },
     methods:{

@@ -4,11 +4,6 @@
             <i-col  :xs="24" :sm="8" :md="8" :lg="8"   class="btn-group">
                 <i-button v-if="showAddBtn" @click="addForm"  type="primary"><i-icon type="md-add-circle" /> 添加</i-button>
 
-                <i-button-group v-if="headerAction">
-                    <template v-for="(item, index) in headerAction">
-                        <i-button   :type="item.type" @click="fun(item.event)"  :title="item.title"><i-icon :type="item.icon" /> {{ item.label }}</i-button>
-                    </template>
-                </i-button-group>
                 <slot name="headerAction"></slot>
 
             </i-col>
@@ -153,21 +148,7 @@
                 </template>
 
                 <!-- 自定义行事件 -->
-                <template v-if="rowAction">
-                    <span v-for="(item,k) in rowAction">
-                        <template v-if=" item.callback == undefined || item.callback(index, row) === false || row.callback_result === false ">
-                            <i-button style="margin-right: 5px"
-                                    :type="item.type"
-                                      size="small"
-                                    @click.native.prevent="rowFun(item.event,index, row)" ><i-icon :type="item.icon" /> {{item.title}}</i-button>
-                        </template>
-                        <template v-else>
-
-                            <span v-html="row.callback_result"></span>
-                        </template>
-
-                    </span>
-                </template>
+                <slot name="rowAction" :row="row"></slot>
             </template>
 
         </i-table>
@@ -249,7 +230,7 @@
 
     export default {
         name:'vc-table',
-        props:['importServer','formLabelWidth','modelWidth','modelHeight' ,'expand','showToolbar','cellEvent','checkbox','headerAction','rowAction','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig','isReady'],//头部按钮
+        props:['importServer','formLabelWidth','modelWidth','modelHeight' ,'expand','showToolbar','cellEvent','checkbox','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig','isReady'],//头部按钮
         components:{VcForm},
         data() {
             return {
@@ -555,16 +536,6 @@
             selectAll:function (selection) {
                 this.selectRows = selection
                 this.$emit('on-select-all',selection)
-            },
-            //表格头部工具条左边按钮组事件回调
-            fun: function (callfun) {
-                //调用外部函数
-                callfun(this.selectRows)
-            },
-            //操作列事件回调
-            rowFun: function (callfun,index,row) {
-                //调用外部函数
-                callfun(index,row)
             },
             cellFun: function (callfun,index,row) {
                 //调用外部函数
