@@ -1,13 +1,12 @@
 <template>
     <div :style="'width:'+ width + 'px'">
         <i-row :gutter="10" v-if=" showToolbar !== false ">
-            <i-col  :xs="24" :sm="8" :md="8" :lg="8"   class="btn-group">
+            <i-col  :xs="24" :sm="9" :md="9" :lg="9"   class="btn-group">
+                <slot name="headerAction"></slot>
                 <i-button v-if="showAddBtn" @click="addForm"  type="primary"><i-icon type="md-add-circle" /> 添加</i-button>
 
-                <slot name="headerAction"></slot>
-
             </i-col>
-            <i-col :xs="24" :sm="16" :md="16" :lg="16"  class="table-tools">
+            <i-col :xs="24" :sm="15" :md="15" :lg="15"  class="table-tools">
                 <i-row type="flex" justify="end">
                     <div class="search-input">
                         <i-input
@@ -19,61 +18,7 @@
                     </div>
 
                     <i-button type="default"  title="刷新" @click="refresh"><i-icon type="md-refresh" /></i-button>
-                    <i-poptip
-                            placement="bottom-end"
-                            :width="filter_form_width"
-                            v-model="filter_show"
-                            >
-                        <i-button type="default"  title="筛选" ><i-icon type="ios-funnel" /></i-button>
-                        <div slot="content">
-                            <i-form :inline="true" :model="filterForm"  ref="filterForm">
-                                <div class="filter-form-content">
-                                    <template v-for="(item,index) in fields_data" >
-                                        <i-col :xs="24" :sm="12" :md="8" :lg="8" :xl="6"  v-if="item.filter">
-                                        <i-form-item :label="item.title"  :prop="item.slot">
-                                            <i-input v-model="filterForm[item.slot]" clearable  :placeholder="'请输入' + item.title" v-if=" item.data_type == 'string' "></i-input>
-                                            <i-select :transfer="true"  @on-change="filter_show = true"  v-model="filterForm[item.slot]" filterable  placeholder="请选择" v-if=" item.data_type == 'select' ">
-                                                <i-option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</i-option>
-                                            </i-select>
-
-                                            <i-date-picker
-                                                    v-if=" item.data_type == 'date' "
-                                                    v-model="filterForm[item.slot]"
-                                                    type="daterange"
-                                                    format="yyyy-MM-dd"
-                                                    placeholder=""
-                                                    :transfer="true"
-                                                    @on-change="(datetime) =>{ changeDatetime(datetime,'filter',item.slot)}"
-                                                    @on-open-change="filter_show = true"
-                                            >
-                                            </i-date-picker>
-
-                                            <i-date-picker
-                                                    v-if=" item.data_type == 'datetime' "
-                                                    v-model="filterForm[item.slot]"
-                                                    type="datetimerange"
-                                                    format="yyyy-MM-dd HH:mm:ss"
-                                                    placeholder=""
-                                                    :transfer="true"
-                                                    @on-change="(datetime) =>{ changeDatetime(datetime,'filter',item.slot)}"
-                                                    @on-open-change="filter_show = true"
-                                            >
-                                            </i-date-picker>
-
-                                        </i-form-item>
-
-                                        </i-col>
-                                    </template>
-                                </div>
-                                <i-col>
-                                <div style="text-align: right; margin: 0">
-                                    <i-button  type="default" @click="restFilter">重置</i-button>
-                                    <i-button type="primary"  @click="filter">确定</i-button>
-                                </div>
-                                </i-col>
-                            </i-form>
-                        </div>
-                    </i-poptip>
+                    <i-button type="default"  title="筛选" @click="filter_show = true"><i-icon type="ios-funnel" /></i-button>
 
                     <!--<el-button type="default" size="small" title="日历"><i class="fa fa-calendar"></i></el-button>
                     <el-button type="default" size="small" title="透视" @click="pivot"><i class="fa fa-table"></i></el-button>
@@ -129,26 +74,37 @@
         >
             <!-- 表格行自定义 -->
             <template v-for="(item,index) in columns"  slot-scope="{ row }"   :slot="item.slot"  >
-                <span  v-html="formatter(row,item.slot,item.data_type,item.options)"></span>
+                <span  v-html="formatter(row,item.slot,item.data_type,item.options,item.options_name)"></span>
             </template>
 
             <!-- 操作列 -->
             <template slot-scope="{ row, index }" slot="action" >
-                <template v-if="showEditBtn">
-                    <i-button style="margin-right: 5px"
-                              type="success"
-                              size="small"
-                              @click.native.prevent="editForm(index, row)" ><Icon type="ios-create" /> 编辑</i-button>
+                <template v-if=" typeof row['status'] != 'undefined' && row['status'] == 2">
+                    <span style="color:#ed4014">已取消</span>
                 </template>
-                <template v-if="showDelBtn">
-                    <i-button style="margin-right: 5px"
-                              type="error"
-                              size="small"
-                              @click.native.prevent="delForm(row)" ><Icon type="md-trash" /> 删除</i-button>
-                </template>
+                <template v-else>
+                    <template v-if="showEditBtn">
+                        <i-button style="margin-right: 5px"
+                                type="success"
+                                size="small"
+                                @click.native.prevent="editForm(index, row)" ><Icon type="ios-create" /> 编辑</i-button>
+                    </template>
+                    <template v-if="showDelBtn">
+                        <i-button style="margin-right: 5px"
+                                type="error"
+                                size="small"
+                                @click.native.prevent="delForm(row)" ><Icon type="md-trash" /> 删除</i-button>
+                    </template>
 
-                <!-- 自定义行事件 -->
-                <slot name="rowAction" :row="row"></slot>
+                    <!-- 自定义行事件 -->
+                    <slot name="rowAction" :row="row"></slot>
+                </template>
+                
+            </template>
+
+            <template slot="loading">
+                <i-icon type="ios-loading" size=18 class="demo-spin-icon-load"></i-icon>
+                <div>Loading</div>
             </template>
 
         </i-table>
@@ -181,10 +137,10 @@
         </i-modal>
 
         <!-- 添加数据表单 -->
-        <vc-form :token="token" :data-form-title="dataFormTitle"  :editor-config="editorConfig"   :model-width="modelWidth" :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"></vc-form>
+        <vc-form :token="token" :data-form-title="dataFormTitle"  :editor-config="editorConfig"   :model-width="modelWidth" :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="dataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize"  :form-tabs="formTabs"  :fields-data="fields_data" ref-name="addDataForm" ref="addDataDlg"  @on-save-data-form="saveAddDataForm"  @on-close-dialog="refresh"></vc-form>
 
         <!-- 修改数据表单 -->
-        <vc-form :token="token" :data-form-title="dataFormTitle"  :editor-config="editorConfig"  :model-width="modelWidth"  :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize" :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm"></vc-form>
+        <vc-form :token="token" :data-form-title="dataFormTitle"  :editor-config="editorConfig"  :model-width="modelWidth"  :model-height="modelHeight"  :form-label-width="formLabelWidth" :data-form="editDataForm" :rule-validate="ruleValidate" :upload-file-server="uploadFileServer" :upload-file-max-size="uploadFileMaxSize"  :form-tabs="formTabs"  :fields-data="fields_data" ref-name="editDataForm" ref="editDataDlg"  @on-save-data-form="saveEditDataForm" @on-close-dialog="refresh"></vc-form>
 
 
         <!-- 导入数据 -->
@@ -200,7 +156,7 @@
             </i-row>
             <i-row>
                 <i-col>
-                    <i-progress  :stroke-width="18" :percent="importExcelPercentage"></i-progress>
+                    <i-progress  :stroke-width="18" :percent="importExcelPercentage" text-inside></i-progress>
                 </i-col>
             </i-row>
 
@@ -210,10 +166,95 @@
             </template>
         </i-modal>
 
+        <!-- 高级搜索 -->
+        <i-modal :width="660" v-model="filter_show" title="高级搜索"  draggable scrollable  >
+            <i-row>
+          <i-form :inline="false" :model="filterForm"  ref="filterForm" :label-width="100">
+
+            <template v-for="(item,index) in fields_data" >
+                <i-col span="12" v-if="item.filter">
+                <i-form-item :label="item.title"  :prop="item.slot" >
+                    
+                  <i-select :transfer="true" v-model="filterForm[item.slot]" filterable  clearable  placeholder="请选择" v-if=" item.data_type == 'select' ">
+                    <i-option v-for="(option_item,option_index) in item.options" :key="option_index" :value="option_index">{{ option_item }}</i-option>
+                  </i-select>
+
+                  <i-radio-group  v-else-if=" item.data_type == 'radio' "  v-model="filterForm[item.slot]" clearable>
+                    <template v-for="(option_item,option_index) in item.options">
+                      <i-radio v-if=" /^\d+$/.test(option_index) " :label="parseInt(option_index)"><span>{{ option_item }}</span></i-radio>
+                      <i-radio v-else-if=" /^\d+\.+\d+$/.test(option_index) " :label="parseFloat(option_index)"><span>{{ option_item }}</span></i-radio>
+                      <i-radio v-else  :label="option_index"><span>{{ option_item }}</span></i-radio>
+                    </template>
+                  </i-radio-group>
+
+                  <i-checkbox-group  v-else-if=" item.data_type == 'checkbox' "  v-model="filterForm[item.slot]">
+                    <template v-for="(option_item,option_index) in item.options">
+                      <i-checkbox  :label="option_index"><span>{{ option_item }}</span></i-checkbox>
+                    </template>
+                  </i-checkbox-group>
+
+                  <i-date-picker
+                    v-else-if=" item.data_type == 'date' "
+                    v-model="filterForm[item.slot]"
+                    type="daterange"
+                    format="yyyy-MM-dd"
+                    placeholder=""
+                    :transfer="true"  clearable
+                    @on-change="(datetime) =>{ changeDatetime(datetime,'filter',item.slot)}"
+                  >
+                  </i-date-picker>
+
+                  <i-date-picker
+                    v-else-if=" item.data_type == 'datetime' "
+                    v-model="filterForm[item.slot]"
+                    type="datetimerange"
+                    format="yyyy-MM-dd HH:mm:ss"
+                    placeholder=""
+                    :transfer="true"  clearable
+                    @on-change="(datetime) =>{ changeDatetime(datetime,'filter',item.slot)}"
+                  >
+                  </i-date-picker>
+
+                  <i-input v-model="filterForm[item.slot]" clearable  :placeholder="'请输入' + item.title" v-else></i-input>
+                    
+                </i-form-item>
+                </i-col>
+            </template>
+
+
+          </i-form>
+          </i-row>
+          <template slot="footer" class="dialog-footer">
+            <i-button  type="default" @click="restFilter">重置</i-button>
+            <i-button type="primary"  @click="filter">搜索</i-button>
+          </template>
+        </i-modal>
+
+
+      <i-modal
+        :width="300"
+        v-model="del_confirm_dlg"
+        title="系统提示"
+        @on-ok="delFormAction"
+        @on-cancel="del_confirm_dlg = false">
+        <p style="font-size: 16px"><i-icon type="md-alert" style="color: #ff9900; font-size: 24px;" /> 确定要执行此操作吗？</p>
+      </i-modal>
+
 
     </div>
 
 </template>
+
+<style scoped>
+  /*.ivu-modal-content{ height: 100% !important;}
+  .ivu-modal-body{ height: calc(100% - 110px) !important;}
+  .ivu-modal-body{ overflow: auto ;}
+  .ivu-input-wrapper{ width: 98% !important;}*/
+   .demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+   }
+   .ivu-form .ivu-col{ margin-bottom: 0 !important;}
+</style>
 
 <script>
     import Vue from 'vue'
@@ -230,10 +271,14 @@
 
     export default {
         name:'vc-table',
-        props:['importServer','formLabelWidth','modelWidth','modelHeight' ,'expand','showToolbar','cellEvent','checkbox','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig','isReady'],//头部按钮
+        props:['formTabs','importServer','formLabelWidth','modelWidth','modelHeight' ,'expand','showToolbar','cellEvent','checkbox','server','page','limit','width','height','operateWidth','showEditBtn','showDelBtn','showAddBtn','uploadFileServer','uploadFileMaxSize','editorConfig','isReady'],//头部按钮
         components:{VcForm},
         data() {
             return {
+                del_current_row: {},
+                del_confirm_dlg: false,
+                cid: '', //当前分类ID
+
                 //数据导入相关
                 importModal: false, //是否显示导入对话框
                 importExcelData: [], //导入的文件内容
@@ -304,8 +349,42 @@
                 let callfun = that.$props.cellEvent
                 callfun(that.tableData)
             }
+            
         },
         methods: {
+            validateInt: function(rule, value, callback){
+                if (/^[0-9]+$/.test(value)) {
+                    callback();
+                } else {
+                    return callback(new Error("请填写整数"));
+                }
+            },
+            validateSelect: function(rule, value, callback){
+                console.log('rule',rule)
+                if ((rule.field == 'categories_id' && value != '') || /^[0-9]+$/.test(value)) {
+                    callback();
+                } else {
+                    return callback(new Error("请选择"));
+                }
+            },
+            validateFile: function(rule, value, callback){
+                console.log('rule',rule)
+                console.log('value=',value)
+                if (value != '') {
+                    callback();
+                } else {
+                    return callback(new Error("请上传"));
+                }
+            },
+            validateNumber: function(rule, value, callback){
+                if (/^[0-9]+\.*[0-9]+$/.test(value)) {
+                    callback();
+                } else {
+                    return callback(new Error("请填写数值"));
+                }
+            },
+            
+
             getUrlParam: function (url,paraName){
                 let arrObj = url.split("?");
 
@@ -366,18 +445,29 @@
 
                 file_data.forEach(function (v,k) {
                     let item_data = {}
+                
                     that.columns.forEach(function (val, key) {
                         if(val['title'] != undefined && val['slot'] != 'action'){
                             let new_val = v[val['title']]
                             if((val['data_type'] == 'datetime' || val['data_type'] == 'date') && new_val > 40000 && new_val < 90000){
                                 new_val = that.dateFormat(new Date(1900, 0, new_val),'Y/m/d H:i:s')  //如果日期变成类似42747 则用这种方式转换
                             }
-                            if(val['options'] != undefined && val['options'] != ''){
-                                val['options'].forEach(function(sv,sk){
-                                    if(sv == new_val){
-                                        new_val = sk
+
+                            if(typeof val['options_name'] != "undefined" && val['options_name'] != ''){
+                                for(let n in val['options_name']){
+                                    if(val['options_name'][n] == new_val){
+                                        new_val = parseInt(n.replace(/\'/g,''))
                                     }
-                                })
+
+                                }
+
+                            }else if(typeof val['options'] != "undefined" && val['options'] != ''){
+                                for(let n in val['options']){
+                                    if(val['options'][n] == new_val){
+                                        new_val = parseInt(n.replace(/\'/g,''))
+                                    }
+
+                                }
                             }
                             item_data[val['slot']] = new_val
                         }
@@ -395,12 +485,18 @@
                 let pageNum = 20
                 let pages = Math.ceil(that.importExcelData.length / pageNum)
 
-                if(that.importCurrentPage >= pages) return false
+                if(that.importCurrentPage >= pages){
+                    if(that.importExcelPercentage == 100){
+                        that.$Message.success('导入成功！')
+                        that.refresh()
+                    }
+                    return false
+                } 
 
                 let post_data = that.importExcelData.slice(that.importCurrentPage * pageNum,(that.importCurrentPage + 1) * pageNum)
 
                 if(post_data != '' && post_data != null && post_data.length != 0){
-                    that.post(that.importServer,{data:post_data}).then(function(data){
+                    that.post(that.importServer,{data:JSON.stringify(post_data)}).then(function(data){
                         if(data.status == 200){
                             that.importExcelPercentage = Math.ceil((that.importCurrentPage + 1) / pages * 100)
                         }
@@ -415,8 +511,9 @@
                 let tpl_data = []
                 let item = []
                 //将下载的字段名替换成表格的表头名称
+                console.log('this.columns',this.columns)
                 this.columns.forEach(function (v,k) {
-                    if(v['slot'] != 'action' && v['slot'] != undefined){
+                    if(['action','create_time','update_time'].indexOf(v['slot']) == -1 && v['slot'] != undefined && v['data_type'] != 'img'){
                         //过滤HTML标签
                         let label = v['title'].replace(/<[^>]*>/g,'')
                         item[label] = ''
@@ -435,43 +532,91 @@
             //添加表单
             addForm: function () {
                 //this.$refs['addDataDlg'].$refs['addDataForm'].resetFields()
+                let that = this
+                console.log(this.fields_data)
+
+                this.fields_data.forEach(function (v,k) {
+                    if(v['data_type'] != 'select' && v['data_type'] != 'checkbox' && v['data_type'] != 'radio'){
+                        that.$set(that.$refs['addDataDlg'].dataForm,v.slot,'')
+
+                        if(v['data_type'] == 'image' || v['data_type'] == 'img' || v['data_type'] == 'file'){
+                            that.$set(that.$refs['addDataDlg'].dataForm,v['slot'] + '_file_info',[])
+                        }
+                    }
+                })
+
                 this.dataFormTitle = '添加'
+                this.$refs['addDataDlg'].editorCfg.zIndex = 0
+                if(this.$route.meta.filter_field != ''){
+                    let form_cid = '\'' + this.cid + '\''
+                    if(this.$route.meta.filter_field == 'model_id')   form_cid = this.cid
+                    this.$refs['addDataDlg'].dataForm[this.$route.meta.filter_field] =  form_cid
+                }
+
+                //重置滚动条位置
+                this.$refs['addDataDlg'].$refs.dlg.$refs.content.scrollTop = 0;
+                this.$refs['addDataDlg'].$refs.dlg.$refs.content.scrollLeft = 0;
+
                 this.$refs['addDataDlg'].dataFormShow = true
-                console.log(this.$refs)
-                this.$refs['addDataDlg'].editorCfg.zIndex = 1800
+
+                console.log('addDataDlg=',this.$refs['addDataDlg'].dataForm)
+
             },
             //修改表单
             editForm: function (index, row) {
-                this.dataFormTitle = '修改'
-                this.editDataForm = row
-                this.$refs['editDataDlg'].dataFormShow = true
-
-                this.$refs['editDataDlg'].editorCfg.zIndex = 1800
-
-                console.log(row)
-                console.log(this.fields_data)
                 let that = this
-                this.fields_data.forEach(function (v,k) {
+                console.log('row=',row)
+               // that.$refs['editDataDlg'].$refs['editDataForm'].resetFields()
+
+                that.fields_data.forEach(function (v,k) {
+
                     if(v['data_type'] == 'image' || v['data_type'] == 'img' || v['data_type'] == 'file'){
                         let file = row[v['slot'] + '_file_info']
+                        let file_list = []
                         if(file != ''){
-                            let file_list = []
-                            file.forEach(function (val,key) {
-                                file_list.push({
-                                    full_url: val.full_url,
-                                    status: val.status,
-                                    name: val.name,
-                                })
-                            })
-                            that.$refs['editDataDlg'].$refs[v['slot']][0].uploadList = file_list
+                            file_list = file
                         }
+
+                        that.$set(that.$refs['editDataDlg'].dataForm,v.slot,row[v['slot']])
+
+                        //that.$refs['editDataDlg'].$refs[v['slot']][0].uploadList = file_list
+                        that.$set(that.$refs['editDataDlg'].dataForm,v['slot'] + '_file_info',file_list)
+
+                    }else if(v['data_type'] == 'date' && (row[v['slot']] == 0 || row[v['slot']] == '')){
+                        that.$set(that.$refs['editDataDlg'].dataForm,v.slot, '')
+                    }else if(v['slot'] == 'relation_field_id'){
+                        //针对关联字段下拉默认选择的处理
+                        that.$set(that.$refs['editDataDlg'].dataForm,'relation_field_id_options', row['relation_field_id_options'])
+                        that.$set(that.$refs['editDataDlg'].dataForm,'relation_field_id', row['relation_field_id'])
+                    }else{
+                        let field_val = row[v['slot']]
+                        if(v['relation_model_id'] > 0){
+                            field_val = '\'' + field_val + '\''
+                        }
+                        that.$set(that.$refs['editDataDlg'].dataForm,v.slot,field_val)
 
                     }
                 })
+
+               // this.editDataForm = row
+               that.$refs['editDataDlg'].$refs['editDataForm'].validate()
+
+
+               that.dataFormTitle = '修改'
+               that.$refs['editDataDlg'].dataFormShow = true
+               that.$refs['editDataDlg'].editorCfg.zIndex = 0
+
+                console.log('fields_data',that.fields_data)
+                console.log('dataForm',that.$refs['editDataDlg'].dataForm)
             },
             //删除行数据
             delForm(row){
-                this.$emit('on-del',row)
+                this.del_current_row = row
+                //this.$emit('on-del',row)
+                this.del_confirm_dlg = true
+            },
+            delFormAction(){
+                this.$emit('on-del',this.del_current_row)
             },
             //保存添加数据表单
             saveAddDataForm: function (data) {
@@ -493,16 +638,27 @@
                 return axios.get(url)
             },
             //格式化行数据
-            formatter:function (row, field_name, data_type, options) {
+            formatter:function (row, field_name, data_type, options,options_name) {
                 let cellValue = row[field_name]
 
                 if((data_type == 'switch' || data_type == 'select' || data_type == 'radio') && options != '' && options != undefined){
-                    cellValue = options[cellValue]
+                    if(typeof options_name != "undefined"){
+                        cellValue = options_name[cellValue]
+                    }else{
+                        cellValue = options[cellValue]
+                    }
+
+                }else if(data_type == 'date' && cellValue == 0){
+                    cellValue = ''
                 }else if(data_type == 'image' || data_type == 'img'){
                     let img = ''
-                    row[field_name + '_file_info'].forEach(function (v,k) {
+                    /*row[field_name + '_file_info'].forEach(function (v,k) {
                         img = img + '<img src="' + v.full_url + '" style="width:60px" /> '
-                    })
+                    })*/
+                    if(row[field_name + '_file_info'].length != 0){
+                       img = '<img src="' + row[field_name + '_file_info'][0].full_url + '" style="width:60px" /> ' 
+                    }
+                    
                     cellValue = img
                 }else if(data_type == 'url' || data_type == 'file'){
                     let file = ''
@@ -627,9 +783,11 @@
                     })
                 }
 
+                let form_tabs = []
 
                 //主体字段
                 data.data.fields.forEach(function (val,key) {
+                    form_tabs.push(val['prop'])
                     let filterName = val['prop']
                     if(val['filterName'] != '' &&  val['filterName'] != undefined){
                         filterName = val['filterName']
@@ -649,8 +807,27 @@
                         if(val['default'] != undefined) defalut_val = val['default']
                         if(typeof defalut_val == "string") defalut_val = defalut_val.trim()
                         that.$set(that.dataForm,val['prop'],defalut_val)
-                        if(val['validate'] != undefined && val['validate'].length != undefined){
-                            that.$set(that.ruleValidate,val['prop'],val['validate'])
+
+                        if(val['validate'] != undefined && val['validate'] == true){
+                           if(['tinyint','smallint','int','bigint'].indexOf(val['field_type']) != -1){
+                                if(val['data_type'] == 'select'){
+                                    that.ruleValidate[val['prop']] = [{required: true, validator: that.validateSelect, trigger: 'blur'}]
+                                }else{
+                                    that.ruleValidate[val['prop']] = [{required: true, validator: that.validateInt, trigger: 'blur'}]
+                                }
+                                
+                           }else if(['float','decimal','double'].indexOf(val['field_type']) != -1){
+                                that.ruleValidate[val['prop']] = [{required: true, validator: that.validateNumber, trigger: 'blur'}]
+                           }else{
+                               if(val['data_type'] == 'img' || val['data_type'] == 'file' ){
+                                   //validateFile
+                                   that.ruleValidate[val['prop']] = [{required: true, validator: that.validateFile, trigger: 'blur'}]
+                               }else{
+                                    that.ruleValidate[val['prop']] = [{required: true, message: val['label'] + '必填', trigger: 'blur'}]
+                               }
+                                
+                           }
+
                         }
 
                     }
@@ -690,16 +867,22 @@
                         },
 
                         data_type: val['data_type'],
+                        is_tree: val['is_tree'],
                         width: val['width'],
                         tips: val['tooltip'],
                         options: val['options'],
+                        options_name: val['options_name'],
                         filter: val['filter'],
+                        field_length: val['length'],
                         data_form: val['data_form'],
                         extension: undefined != val['extension'] ? val['extension'] : '',
                         filter_field: val['filter_field'],
                         filter_form_name: val['filter_form_name'],
                         field_id: val['field_id'],
-                        filter_url: val['filter_url']
+                        filter_url: val['filter_url'],
+                        is_disabled: val['is_disabled'],
+                        field_type: val['field_type']
+          
                     }
 
                     if(that.checkbox == true){
@@ -715,6 +898,11 @@
                     }
                 })
 
+                if(that.formTabs.length == 0){
+                    that.formTabs[0] = {}
+                    that.formTabs[0]['tab_name'] = '基本信息'
+                    that.formTabs[0]['tab_fields'] = form_tabs
+                }
 
                 //操作列
                 if((that.rowAction != undefined  && that.rowAction.length > 0) || that.showAddBtn || that.showEditBtn || that.showDelBtn){
@@ -755,11 +943,13 @@
                     let item = []
                     //将下载的字段名替换成表格的表头名称
                     that.columns.forEach(function (v,k) {
-                        if(v['slot'] != 'action' && v['slot'] != undefined){
+                        if(v['slot'] != 'action' && typeof v['slot'] != "undefined"){
                             //过滤HTML标签
                             let label = v['title'].replace(/<[^>]*>/g,'')
                             let value = val[v['slot']]
-                            if(v['options'] != undefined && v['options'] != ''){
+                            if(typeof v['options_name'] != "undefined" && v['options_name'] != ''){
+                                value = v['options_name'][value]
+                            }else if(typeof v['options'] != "undefined" && v['options'] != ''){
                                 value = v['options'][value]
                             }
                             item[label] = value
@@ -796,17 +986,35 @@
                 this.pullData(this.downloadCurrentPage,this.getExportData)
             },
             //刷新
-            refresh: function () {
+            refresh: function (current_id) {
                 this.loading = true
                 this.pullData(this.currentPage,this.getList)
+
+                //this.$refs['addDataDlg'].resetDataForm(true)
 
                 //处理选择分类进入列表后，表单如有select，联动的表单没有进行过滤问题
                 let that = this
                 that.fields_data.forEach(function (item,index) {
                     if(item.data_type == 'select'){
-                        that.$refs['addDataDlg'].selectEvent(item,that.$refs['addDataDlg'].dataForm[item.slot],false)
+                        let sel_val = that.$refs['addDataDlg'].dataForm[item.slot]
+                        if(typeof current_id != "undefined" && current_id != null){
+                            sel_val = current_id
+                        }
+                        that.$refs['addDataDlg'].selectEvent(item,sel_val,false)
+                    } else if(item.data_type == 'text'){
+                        that.$refs['addDataDlg'].dataForm[item.slot] = ''
                     }
                 })
+
+
+                //重置滚动条位置
+                that.$refs['addDataDlg'].$refs.dlg.$refs.content.scrollTop = 0;
+                that.$refs['addDataDlg'].$refs.dlg.$refs.content.scrollLeft = 0;
+                that.$refs['editDataDlg'].$refs.dlg.$refs.content.scrollTop = 0;
+                that.$refs['editDataDlg'].$refs.dlg.$refs.content.scrollLeft = 0;
+
+                that.$refs['addDataDlg'].dataFormShow = false;
+                that.$refs['editDataDlg'].dataFormShow = false;
 
             },
             //改变窗口大小
@@ -864,6 +1072,7 @@
             },
             //拉取列表数据的回调
             getList(data){
+                let that = this
                 if(data.data.data == undefined){
                     let msg = '接口异常，无法拉取数据！'
                     if(data.data.message != undefined) msg = msg + data.data.message
@@ -871,6 +1080,15 @@
                     this.$Message.error(msg);
                     return false
                 }
+
+                data.data.data.forEach(function (row,row_index) {
+                    that.fields_data.forEach(function (item,index) {
+                        if(item.data_type == 'select' && item.is_tree == true && typeof row[item.slot] == 'number'){
+                            row[item.slot] = "'" + row[item.slot] + "'"
+                        }
+                    })
+                })
+
                 this.tableData = data.data.data
                 this.total = parseInt(data.data.total)
                 this.totalPages = Math.ceil(this.total / this.pageSize)

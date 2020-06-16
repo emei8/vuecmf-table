@@ -48,9 +48,9 @@
 import VcTable from "./lib/vuecmf-table/table.vue";
 
 import Vue from 'vue'
-import iView from 'iview'
-import 'iview/dist/styles/iview.css';
-Vue.use(iView)
+import ViewUI from 'view-design'
+import 'view-design/dist/styles/iview.css';
+Vue.use(ViewUI)
 
 export default {
   components: {VcTable},

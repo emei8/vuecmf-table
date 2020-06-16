@@ -45,7 +45,7 @@
 
                 if((data_type == 'switch' || data_type == 'select') && options != '' && options != undefined){
                     cellValue = options[cellValue]
-                }else if(data_type == 'image'){
+                }else if(data_type == 'image' || data_type == 'img'){
                     cellValue = '<img src="' + cellValue + '" style="width:60px" />'
                 }else if(data_type == 'url'){
                     cellValue = '<a href="' + cellValue + '" target="_blank">' + cellValue + '</a>'
