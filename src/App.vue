@@ -2,6 +2,7 @@
   <div id="app">
     <h2>vuecmf-table demo</h2>
     <vc-table
+            :formTabs="formTabs"
             @on-add="add"
             @on-edit="edit"
             @on-del="del"
@@ -10,7 +11,6 @@
             :show-add-btn="true"
             :checkbox="true"
             ref="vcTable"
-            :header-action="headerAction"
             :cell-event="cellEvent"
             server="http://www.b2b.com/api/Table/index"
             import-server="http://www.b2b.com/api/Table/importData"
@@ -36,7 +36,7 @@
       </template>
 
       <template #rowAction="slotProps" >
-        <a href="" class="ivu-btn ivu-btn-primary">编辑</a>
+        <i-button type="primary"  @click="edit(slotProps.row)">编辑</i-button>
       </template>
 
     </vc-table>
@@ -58,6 +58,7 @@ export default {
   data () {
     let that = this
     return {
+        formTabs:[],
         editorConfig: {
             // 你的UEditor资源存放的路径,相对于打包后的index.html
             UEDITOR_HOME_URL: '/public/NEditor/',
@@ -113,30 +114,6 @@ export default {
       let current_height = document.documentElement.clientHeight - 150
       that.height = current_height
       that.width = current_width
-
-      that.rowAction[1].callback = function (index,row) {
-
-          //that.$set(that.$refs.vcTable.tableData[index],'callback_result','未关注');  //替换默认操作
-
-          that.$set(that.$refs.vcTable.tableData[index],'callback_result',false);  //不替换默认操作
-
-         /*
-         //异常回调处理
-         that.$refs.vcTable.post('http://www.b2b.com/api/table/index',{id:'11'}).then(
-              resolve => {
-                  //console.log('请求成功',resolve.data)
-
-                  that.$set(that.$refs.vcTable.tableData[index],'callback_result','未关注');
-
-                  //return Promise.resolve(resolve.data)
-              },
-              reject => {
-                 // console.log('请求异常')
-                 // return Promise.reject(reject)
-              }
-          );*/
-
-      }
 
   }
 }
