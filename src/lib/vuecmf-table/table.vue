@@ -144,7 +144,7 @@
 
 
         <!-- 导入数据 -->
-        <i-modal v-model="importModal" title="导入" >
+        <i-modal v-model="importModal" title="导入" :closable="false">
             <i-row class="import-btn">
                 <i-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
                     <i-button icon="md-cloud-download" type="success" @click="downloadTemplate" >下载模板</i-button>
@@ -153,7 +153,15 @@
                     <input type="file" ref="importExcelForm" class="file-form" @change="importExcel" >
                     <i-button icon="md-cloud-upload" type="primary" @click="triggerUpload">上传文件</i-button>
                 </i-col>
+                <i-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24"  v-if=" import_file_name != '' ">
+                    当前选择文件:  {{ import_file_name }} 
+                    <div v-if=" import_file_error != '' ">
+                        <div class="error_tips" v-html="import_file_error"></div>
+                    </div>
+                </i-col>
+
             </i-row>
+            
             <i-row>
                 <i-col>
                     <i-progress  :stroke-width="18" :percent="importExcelPercentage" text-inside></i-progress>
@@ -161,8 +169,8 @@
             </i-row>
 
             <template slot="footer">
-                <i-button type="default"   @click="importModal = false">取消</i-button>
-                <i-button type="primary"   @click="startImportData">开始</i-button>
+                <i-button type="default"   @click="closeImportDlg">取消</i-button>
+                <i-button type="primary"   @click="startImportData" :disabled=" is_import_disabled ">开始</i-button>
             </template>
         </i-modal>
 
@@ -254,6 +262,8 @@
         animation: ani-demo-spin 1s linear infinite;
    }
    .ivu-form .ivu-col{ margin-bottom: 0 !important;}
+
+   .error_tips{ color:#ed4014; text-align: left;}
 </style>
 
 <script>
@@ -280,6 +290,9 @@
                 cid: '', //当前分类ID
 
                 //数据导入相关
+                is_import_disabled: false, //开始按钮是否可用
+                import_file_name: '', //当前导入文件名
+                import_file_error: '', //导入异常提示语句
                 importModal: false, //是否显示导入对话框
                 importExcelData: [], //导入的文件内容
                 importExcelPercentage:0, //导入进度百分比
@@ -352,6 +365,14 @@
             
         },
         methods: {
+            closeImportDlg: function(){
+                this.importModal = false
+                this.import_file_name = ''
+                this.import_file_error = ''
+                this.importExcelPercentage = 0
+                this.importCurrentPage = 0
+                this.is_import_disabled = false
+            },
             validateInt: function(rule, value, callback){
                 if (/^[0-9]+$/.test(value)) {
                     callback();
@@ -424,16 +445,23 @@
             },
             //触发上传事件
             triggerUpload(){
+                this.import_file_name = ''
+                this.import_file_error = ''
                 this.importExcelPercentage = 0
                 this.importCurrentPage = 0
+                this.is_import_disabled = false
                 this.$refs.importExcelForm.click()
             },
             //上传导入EXCEL
             importExcel(fileForm){
                 if(fileForm.target.files[0].type != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' && fileForm.target.files[0].type != 'application/vnd.ms-excel'){
                     this.$Message.error('上传文件类型错误！只能上传文件xlsx,xls类型文件');
+                    this.is_import_disabled = true
                     return false
                 }
+
+                this.import_file_name = fileForm.target.files[0].name
+
                 jsonImport(fileForm.target,this.callbackUploadExcelData)
             },
             //获取上传的EXCEL数据的回调函数
@@ -442,6 +470,7 @@
                 if(file_data.length == 0) return false
 
                 let newData = []
+            
 
                 file_data.forEach(function (v,k) {
                     let item_data = {}
@@ -454,26 +483,45 @@
                             }
 
                             if(typeof val['options_name'] != "undefined" && val['options_name'] != ''){
+                                let flag = false
                                 for(let n in val['options_name']){
                                     if(val['options_name'][n] == new_val){
+                                        flag = true
                                         new_val = parseInt(n.replace(/\'/g,''))
                                     }
-
+                                }
+                                if(flag == false){
+                                    that.import_file_error += '第 '+ (k+2) +' 行中的“ '+new_val+' ”在系统中没有找到对应的“ '+val['title']+" ”<br>";
                                 }
 
                             }else if(typeof val['options'] != "undefined" && val['options'] != ''){
+                                let flag = false
                                 for(let n in val['options']){
                                     if(val['options'][n] == new_val){
+                                        flag = true
                                         new_val = parseInt(n.replace(/\'/g,''))
                                     }
 
                                 }
+                                if(flag == false){
+                                    that.import_file_error += '第 '+ (k+2) +' 行中的“ '+new_val+' ”在系统中没有找到对应的“ '+val['title']+" ”<br>";
+                                }
                             }
+
+                            if(typeof new_val == "undefined")  new_val = ''
+
                             item_data[val['slot']] = new_val
                         }
                     })
                     newData[k] = item_data
                 })
+
+                if(that.import_file_error != ''){
+                    that.is_import_disabled = true
+                    that.$refs.importExcelForm.value = ''
+                } 
+
+                console.log(newData)
 
                 this.importExcelData = newData
             },
@@ -497,11 +545,17 @@
 
                 if(post_data != '' && post_data != null && post_data.length != 0){
                     that.post(that.importServer,{data:JSON.stringify(post_data)}).then(function(data){
-                        if(data.status == 200){
-                            that.importExcelPercentage = Math.ceil((that.importCurrentPage + 1) / pages * 100)
+                        if(data.status == 200 && data.data.code == 0){
+                            if(data.status == 200){
+                                that.importExcelPercentage = Math.ceil((that.importCurrentPage + 1) / pages * 100)
+                            }
+                            that.importCurrentPage ++
+                            that.startImportData()
+                        }else if(data.data.code != 0){
+                            that.import_file_error = data.data.msg + '<br>'
+                            that.is_import_disabled = true
                         }
-                        that.importCurrentPage ++
-                        that.startImportData()
+                        
                     })
                 }
 
