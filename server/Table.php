@@ -118,9 +118,9 @@ class Table extends Controller
 
 
                 }
-                return json([
-                    'fields' => $field_info, //列字段信息
-                ]);
+
+                //列字段信息
+                return json(['data' => ['fields' => $field_info]]);
             }
 
             //拉取列表数据
@@ -171,7 +171,7 @@ class Table extends Controller
             }
 
 
-            return json($result);
+            return json(['data' => $result]);
         }catch (Exception $e){
             echo $e->getMessage().', 在文件'.$e->getFile().' 第'.$e->getLine().'行';
         }

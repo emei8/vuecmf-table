@@ -709,20 +709,25 @@
                     /*row[field_name + '_file_info'].forEach(function (v,k) {
                         img = img + '<img src="' + v.full_url + '" style="width:60px" /> '
                     })*/
-                    if(row[field_name + '_file_info'].length != 0){
+                    if(typeof row[field_name + '_file_info'] != "undefined" && row[field_name + '_file_info'].length != 0){
                        img = '<img src="' + row[field_name + '_file_info'][0].full_url + '" style="width:60px" /> ' 
                     }
                     
                     cellValue = img
                 }else if(data_type == 'url' || data_type == 'file'){
                     let file = ''
-                    row[field_name + '_file_info'].forEach(function (v,k) {
-                        file = file + '<a href="' + v.full_url + '" target="_blank">' + v.url + '</a> '
-                    })
+                    if(typeof row[field_name + '_file_info'] != "undefined"){
+                        row[field_name + '_file_info'].forEach(function (v,k) {
+                            file = file + '<a href="' + v.full_url + '" target="_blank">' + v.url + '</a> '
+                        })
+                    }else{
+                        file = row[field_name]
+                    }
+                    
                     cellValue = file
                 }
 
-                if(row[field_name + '-html'] != undefined){
+                if(typeof row[field_name + '-html'] != "undefined"){
                     cellValue = row[field_name + '-html']
                 }
 
@@ -952,7 +957,7 @@
                     }
                 })
 
-                if(that.formTabs.length == 0){
+                if(typeof that.formTabs != "undefined" && that.formTabs.length == 0){
                     that.formTabs[0] = {}
                     that.formTabs[0]['tab_name'] = '基本信息'
                     that.formTabs[0]['tab_fields'] = form_tabs
