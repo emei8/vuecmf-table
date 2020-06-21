@@ -31,7 +31,7 @@
 
                                   <vue-neditor-wrap  v-if=" item.data_type == 'editor' "
                                                      v-model="dataForm[item.slot]"
-                                                     :config="editorConfig"
+                                                     :config="editorCfg"
                                                      :destroy="false"
                                                      @ready="editorReady">
                                   </vue-neditor-wrap>
@@ -208,6 +208,7 @@
             }
 
             that.$refs[that.refName].validate()
+
 
         },
         mounted: function () {

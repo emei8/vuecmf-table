@@ -600,7 +600,6 @@
                 })
 
                 this.dataFormTitle = '添加'
-                this.$refs['addDataDlg'].editorCfg.zIndex = 0
                 if(this.$route.meta.filter_field != ''){
                     let form_cid = '\'' + this.cid + '\''
                     if(this.$route.meta.filter_field == 'model_id')   form_cid = this.cid
@@ -612,8 +611,6 @@
                 this.$refs['addDataDlg'].$refs.dlg.$refs.content.scrollLeft = 0;
 
                 this.$refs['addDataDlg'].dataFormShow = true
-
-                console.log('addDataDlg=',this.$refs['addDataDlg'].dataForm)
 
             },
             //修改表单
@@ -655,13 +652,9 @@
                // this.editDataForm = row
                that.$refs['editDataDlg'].$refs['editDataForm'].validate()
 
-
                that.dataFormTitle = '修改'
                that.$refs['editDataDlg'].dataFormShow = true
-               that.$refs['editDataDlg'].editorCfg.zIndex = 0
 
-                console.log('fields_data',that.fields_data)
-                console.log('dataForm',that.$refs['editDataDlg'].dataForm)
             },
             //删除行数据
             delForm(row){
