@@ -17,7 +17,7 @@
     "url": "git+https://github.com/emei8/vuecmf-table.git"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "file-saver": "^2.0.0-rc.4",
     "font-awesome": "^4.7.0",
     "view-design": "^4.2.0",
