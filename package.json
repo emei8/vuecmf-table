@@ -23,7 +23,7 @@
     "view-design": "^4.2.0",
     "vue": "^2.5.22",
     "vue-neditor-wrap": "^1.0.4",
-    "xlsx": "^0.14.0"
+    "xlsx": "^0.17.0"
   },
   "browserslist": [
     "> 1%",
